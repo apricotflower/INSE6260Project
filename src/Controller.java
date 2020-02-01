@@ -95,6 +95,13 @@ public class Controller {
                     System.out.println(b.getNumber());
                     System.out.println(b.getBatterySize());
                 }
+
+                for (int i = 0; i < chargerTable.getItems().size(); i++) {
+                    ChargerModel c = (ChargerModel) chargerTable.getItems().get(i);
+                    System.out.println(c.getChargerModel());
+                    System.out.println(c.getLionelGroulxNumber());
+                    System.out.println(c.getMacDonaldNumber());
+                }
             }
         });
 
@@ -159,6 +166,35 @@ public class Controller {
 
         chargerModelPower.setItems(items);
     }
+
+    @FXML
+    public void tableBusListener(TableColumn.CellEditEvent<BusBatteryConfig,String> value) {
+        TableColumn<BusBatteryConfig, String> editedCol = value.getTableColumn();
+        BusBatteryConfig std = value.getRowValue();
+        System.out.println("Change bus number " + editedCol.getCellData(std) + " to " + value.getNewValue());
+        configPlanGenerator.getBusBatteryConfig().setNumber(value.getNewValue());
+        cost.setText(String.valueOf(configPlanGenerator.getExpenditure()));
+    }
+
+    @FXML
+    public void numLionelListener(TableColumn.CellEditEvent<ChargerModel,String> value) {
+        TableColumn<ChargerModel, String> editedCol = value.getTableColumn();
+        ChargerModel std = value.getRowValue();
+        System.out.println("Change Lionel charger number " + editedCol.getCellData(std) + " to " + value.getNewValue());
+//        System.out.println(value.getTablePosition().getRow());
+        configPlanGenerator.getChargerModels().get(value.getTablePosition().getRow()).setLionelGroulxNumber(value.getNewValue());
+        cost.setText(String.valueOf(configPlanGenerator.getExpenditure()));
+    }
+
+    @FXML
+    public void numMacDonaldListener(TableColumn.CellEditEvent<ChargerModel,String> value) {
+        TableColumn<ChargerModel, String> editedCol = value.getTableColumn();
+        ChargerModel std = value.getRowValue();
+        System.out.println("Change MacDonald charger number " + editedCol.getCellData(std) + " to " + value.getNewValue());
+        configPlanGenerator.getChargerModels().get(value.getTablePosition().getRow()).setMacDonaldNumber(value.getNewValue());
+        cost.setText(String.valueOf(configPlanGenerator.getExpenditure()));
+    }
+
 
     private void generateBusPlan(){
         ObservableList<BusBatteryConfig> busList = FXCollections.observableArrayList();

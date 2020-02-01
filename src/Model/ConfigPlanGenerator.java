@@ -65,7 +65,11 @@ public class ConfigPlanGenerator {
 //    }
 
     public float getExpenditure() {
-        return expenditure;
+        int chargerPriceSum = 0;
+        for (ChargerModel chargerModel:this.chargerModels){
+            chargerPriceSum = chargerPriceSum + chargerModel.getChargerPrice();
+        }
+        return this.expenditure = (float)(chargerPriceSum + busBatteryConfig.getUnitPrice()*Integer.parseInt(busBatteryConfig.getNumber()));
     }
 
 

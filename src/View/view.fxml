@@ -59,15 +59,15 @@
             <TableView fx:id="busTable" layoutX="33.0" layoutY="146.0" prefHeight="64.0" prefWidth="360.0">
               <columns>
                 <TableColumn fx:id="planBusType" prefWidth="98.0" text="bus type" />
-                <TableColumn fx:id="planBusNumber" prefWidth="119.0" text="bus number" />
+                <TableColumn fx:id="planBusNumber" onEditCommit="#tableBusListener" prefWidth="119.0" text="bus number" />
                   <TableColumn fx:id="planBattery" prefWidth="145.0" text="matched battery" />
               </columns>
             </TableView>
             <TableView fx:id="chargerTable" layoutX="33.0" layoutY="64.0" prefHeight="80.0" prefWidth="360.0">
               <columns>
                 <TableColumn fx:id="planChargerType" prefWidth="97.00003051757812" text="charger type" />
-                <TableColumn fx:id="planNumLionel" prefWidth="127.3333740234375" text="Lionel-Groulx" />
-                  <TableColumn fx:id="planMacDonald" prefWidth="133.0" text="MacDonald" />
+                <TableColumn fx:id="planNumLionel" onEditCommit="#numLionelListener" prefWidth="127.3333740234375" text="Lionel-Groulx" />
+                  <TableColumn fx:id="planMacDonald" onEditCommit="#numMacDonaldListener" prefWidth="133.0" text="MacDonald" />
               </columns>
             </TableView>
             <Button fx:id="displayButton" layoutX="212.0" layoutY="222.0" mnemonicParsing="false" text="display" />
