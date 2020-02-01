@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+   <children>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="251.0" prefWidth="451.0">
+         <children>
+            <GridPane layoutX="14.0" prefHeight="161.0" prefWidth="399.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="225.0" minWidth="10.0" prefWidth="167.33331298828125" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="231.66668701171875" minWidth="10.0" prefWidth="231.66668701171875" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="64.33332824707031" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="110.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="25.0" prefWidth="121.0" text="Charger Manufacture:" />
+                  <ComboBox fx:id="chargerManufacture" prefHeight="25.0" prefWidth="165.0" GridPane.rowIndex="1" />
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="113.0" text=" Model(power)" GridPane.columnIndex="1" />
+                  <ListView fx:id="chargerModelPower" prefHeight="110.0" prefWidth="226.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               </children>
+            </GridPane>
+            <GridPane layoutX="26.0" layoutY="169.0" prefHeight="70.0" prefWidth="280.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.33334350585938" minWidth="10.0" prefWidth="126.33334350585938" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="120.66668701171875" minWidth="10.0" prefWidth="111.66665649414062" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="86.0" minWidth="10.0" prefWidth="41.66668701171875" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="10.0" prefWidth="118.0" text="Battery size(kWh):" GridPane.columnIndex="1" />
+                  <TextField fx:id="unitCostBusBattery" prefHeight="25.0" prefWidth="45.0" promptText="price" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="11.0" prefWidth="126.0" text="Bus type:" />
+                  <ComboBox fx:id="busType" prefWidth="150.0" GridPane.rowIndex="1" />
+                  <ComboBox fx:id="batterySize" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               </children>
+            </GridPane>
+            <Button fx:id="runButton" layoutX="330.0" layoutY="212.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="72.0" text="Run" />
+         </children>
+      </AnchorPane>
+    <AnchorPane layoutY="251.0" minHeight="0.0" minWidth="0.0" prefHeight="251.0" prefWidth="471.0">
+         <children>
+            <TableView fx:id="busTable" layoutX="33.0" layoutY="146.0" prefHeight="64.0" prefWidth="360.0">
+              <columns>
+                <TableColumn fx:id="planBusType" prefWidth="98.0" text="bus type" />
+                <TableColumn fx:id="planBusNumber" prefWidth="119.0" text="bus number" />
+                  <TableColumn fx:id="planBattery" prefWidth="145.0" text="matched battery" />
+              </columns>
+            </TableView>
+            <TableView fx:id="chargerTable" layoutX="33.0" layoutY="64.0" prefHeight="80.0" prefWidth="360.0">
+              <columns>
+                <TableColumn fx:id="planChargerType" prefWidth="97.00003051757812" text="charger type" />
+                <TableColumn fx:id="planNumLionel" prefWidth="127.3333740234375" text="Lionel-Groulx" />
+                  <TableColumn fx:id="planMacDonald" prefWidth="133.0" text="MacDonald" />
+              </columns>
+            </TableView>
+            <Button fx:id="displayButton" layoutX="212.0" layoutY="222.0" mnemonicParsing="false" text="display" />
+            <Label layoutX="156.0" layoutY="29.0" text="Configuration Plan">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </Label>
+            <GridPane layoutX="269.0" layoutY="224.0" prefHeight="25.0" prefWidth="124.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="58.66668701171875" minWidth="10.0" prefWidth="47.33331298828125" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="76.66668701171875" minWidth="10.0" prefWidth="76.66668701171875" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="56.0" text="Cost:" />
+                  <Label fx:id="cost" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0" prefWidth="73.0" GridPane.columnIndex="1" />
+               </children>
+            </GridPane>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="500.0" layoutY="3.0" prefHeight="493.0" prefWidth="495.0" />
+   </children>
+</AnchorPane>
