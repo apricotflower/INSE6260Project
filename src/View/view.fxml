@@ -13,11 +13,11 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<AnchorPane prefHeight="500.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <children>
-    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="251.0" prefWidth="451.0">
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="245.0" prefWidth="423.0">
          <children>
-            <GridPane layoutX="14.0" prefHeight="161.0" prefWidth="399.0">
+            <GridPane layoutX="12.0" layoutY="14.0" prefHeight="161.0" prefWidth="399.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="225.0" minWidth="10.0" prefWidth="167.33331298828125" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="231.66668701171875" minWidth="10.0" prefWidth="231.66668701171875" />
@@ -33,7 +33,7 @@
                   <ListView fx:id="chargerModelPower" prefHeight="110.0" prefWidth="226.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
-            <GridPane layoutX="26.0" layoutY="169.0" prefHeight="70.0" prefWidth="280.0">
+            <GridPane layoutX="14.0" layoutY="190.0" prefHeight="70.0" prefWidth="280.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.33334350585938" minWidth="10.0" prefWidth="126.33334350585938" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="120.66668701171875" minWidth="10.0" prefWidth="111.66665649414062" />
@@ -51,10 +51,10 @@
                   <ComboBox fx:id="batterySize" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
-            <Button fx:id="runButton" layoutX="330.0" layoutY="212.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="72.0" text="Run" />
+            <Button fx:id="runButton" layoutX="280.0" layoutY="190.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="72.0" text="Run" />
          </children>
       </AnchorPane>
-    <AnchorPane layoutY="251.0" minHeight="0.0" minWidth="0.0" prefHeight="251.0" prefWidth="471.0">
+    <AnchorPane layoutY="245.0" minHeight="0.0" minWidth="0.0" prefHeight="251.0" prefWidth="415.0">
          <children>
             <TableView fx:id="busTable" layoutX="33.0" layoutY="146.0" prefHeight="64.0" prefWidth="360.0">
               <columns>
@@ -65,12 +65,12 @@
             </TableView>
             <TableView fx:id="chargerTable" layoutX="33.0" layoutY="64.0" prefHeight="80.0" prefWidth="360.0">
               <columns>
-                <TableColumn fx:id="planChargerType" prefWidth="97.00003051757812" text="charger type" />
-                <TableColumn fx:id="planNumLionel" onEditCommit="#numLionelListener" prefWidth="127.3333740234375" text="Lionel-Groulx" />
-                  <TableColumn fx:id="planMacDonald" onEditCommit="#numMacDonaldListener" prefWidth="133.0" text="MacDonald" />
+                <TableColumn fx:id="planChargerType" prefWidth="147.0" text="charger type" />
+                <TableColumn fx:id="planNumLionel" onEditCommit="#numLionelListener" prefWidth="115.0" text="Lionel-Groulx" />
+                  <TableColumn fx:id="planMacDonald" onEditCommit="#numMacDonaldListener" prefWidth="97.66668701171875" text="MacDonald" />
               </columns>
             </TableView>
-            <Button fx:id="displayButton" layoutX="212.0" layoutY="222.0" mnemonicParsing="false" text="display" />
+            <Button fx:id="displayButton" layoutX="187.0" layoutY="224.0" mnemonicParsing="false" text="display" />
             <Label layoutX="156.0" layoutY="29.0" text="Configuration Plan">
                <font>
                   <Font size="17.0" />
@@ -91,6 +91,40 @@
             </GridPane>
          </children>
       </AnchorPane>
-      <AnchorPane layoutX="500.0" layoutY="3.0" prefHeight="493.0" prefWidth="495.0" />
+      <AnchorPane layoutX="416.0" prefHeight="513.0" prefWidth="844.0">
+         <children>
+            <TableView fx:id="scheduleTable" layoutY="74.0" prefHeight="439.0" prefWidth="823.0">
+              <columns>
+                <TableColumn prefWidth="200.0" text="Bus">
+                     <columns>
+                        <TableColumn fx:id="busId" prefWidth="75.0" text="Bus ID" />
+                        <TableColumn prefWidth="75.0" text="Bat. Size" />
+                     </columns>
+                  </TableColumn>
+                <TableColumn prefWidth="600.0" text="Before Trip Charging">
+                     <columns>
+                        <TableColumn prefWidth="75.0" text="Trip-Comp" />
+                        <TableColumn prefWidth="75.0" text="AT-SOC (KM)" />
+                        <TableColumn prefWidth="75.0" text="Charger ID" />
+                        <TableColumn prefWidth="75.0" text="Start Time" />
+                        <TableColumn prefWidth="75.0" text="End Time" />
+                        <TableColumn prefWidth="75.0" text="BT-SOC(KM)" />
+                     </columns>
+                  </TableColumn>
+                  <TableColumn prefWidth="208.0" text="Trip-Assigned">
+                     <columns>
+                        <TableColumn prefWidth="75.0" text="Trip ID" />
+                        <TableColumn prefWidth="75.0" text="Start Time" />
+                        <TableColumn prefWidth="75.0" text="End Time" />
+                     </columns>
+                  </TableColumn>
+              </columns>
+            </TableView>
+            <Label layoutX="352.0" layoutY="14.0" text="Schedule">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+         </children></AnchorPane>
    </children>
 </AnchorPane>

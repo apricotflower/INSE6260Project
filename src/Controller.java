@@ -1,6 +1,7 @@
 import Entities.ChargerCheckBox;
 import Entities.ChargerModel;
 import Model.ConfigPlanGenerator;
+import Model.ScheduleGenerator;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -63,8 +64,9 @@ public class Controller {
     public Label cost;
 
 
-
     ConfigPlanGenerator configPlanGenerator;
+    ScheduleGenerator scheduleGenerator;
+
 
     public void initialize() {
         loadData();
@@ -84,26 +86,7 @@ public class Controller {
         chargerTable.setEditable(true);
 
         setRunButton();
-
-
-        displayButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                for (int i = 0; i < busTable.getItems().size(); i++) {
-                    BusBatteryConfig b = (BusBatteryConfig)busTable.getItems().get(i);
-                    System.out.println(b.getBusType());
-                    System.out.println(b.getNumber());
-                    System.out.println(b.getBatterySize());
-                }
-
-                for (int i = 0; i < chargerTable.getItems().size(); i++) {
-                    ChargerModel c = (ChargerModel) chargerTable.getItems().get(i);
-                    System.out.println(c.getChargerModel());
-                    System.out.println(c.getLionelGroulxNumber());
-                    System.out.println(c.getMacDonaldNumber());
-                }
-            }
-        });
+        setDisplayButton();
 
 
     }
@@ -205,8 +188,6 @@ public class Controller {
         planBusType.setCellValueFactory(new PropertyValueFactory<String,String>("busType"));
 
         planBusNumber.setCellFactory(TextFieldTableCell.forTableColumn());
-//        busTable.refresh();
-
     }
 
     private void generateChargerPlan(){
@@ -221,6 +202,32 @@ public class Controller {
 
         planNumLionel.setCellFactory(TextFieldTableCell.forTableColumn());
         planMacDonald.setCellFactory(TextFieldTableCell.forTableColumn());
+    }
+
+
+    private void setDisplayButton(){
+        displayButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                for (int i = 0; i < busTable.getItems().size(); i++) {
+                    BusBatteryConfig b = (BusBatteryConfig)busTable.getItems().get(i);
+                    System.out.println(b.getBusType());
+                    System.out.println(b.getNumber());
+                    System.out.println(b.getBatterySize());
+                }
+
+                for (int i = 0; i < chargerTable.getItems().size(); i++) {
+                    ChargerModel c = (ChargerModel) chargerTable.getItems().get(i);
+                    System.out.println(c.getChargerModel());
+                    System.out.println(c.getLionelGroulxNumber());
+                    System.out.println(c.getMacDonaldNumber());
+                }
+
+                scheduleGenerator = new ScheduleGenerator(configPlanGenerator);
+
+            }
+        });
+
     }
 
 
