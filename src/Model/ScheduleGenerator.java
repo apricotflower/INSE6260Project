@@ -30,8 +30,8 @@ public class ScheduleGenerator {
     private int onPower = 0;
 
     private ArrayList<ScheduleLine> scheduleLines;
-    private List<Float> MacdonaldSchedule;//min
-    private List<Float> LionelSchedule;//min
+    private List<Integer> MacdonaldSchedule;//min
+    private List<Integer> LionelSchedule;//min
     private ArrayList<Bus> busList;
     private Bus curBus;
 
@@ -66,8 +66,8 @@ public class ScheduleGenerator {
 //        MacdonaldSchedule.forEach(line-> System.out.println(line[0]+":"+line[1]));
 //        LionelSchedule.forEach(line-> System.out.println(line[0]+":"+line[1]));
         busList = new ArrayList<>();
-        float lastBusMacdonald = MacdonaldSchedule.get(MacdonaldSchedule.size()-1);
-        float lastBusLionel = LionelSchedule.get(LionelSchedule.size()-1);
+//        float lastBusMacdonald = MacdonaldSchedule.get(MacdonaldSchedule.size()-1);
+//        float lastBusLionel = LionelSchedule.get(LionelSchedule.size()-1);
 
 
         //first Line
@@ -96,22 +96,22 @@ public class ScheduleGenerator {
         }
         String firstChargerId = firstChargerLoc +"-"+ firstChargerType +"-"+ firstChargerPower +"-"+ firstChargerIdSeq;
 
-        float firstBtcEndTime = 4;
-        float firstChargingTime = (float)batterySize/(float) firstChargerPower;//hour
-        float firstBtcStartTime = 4-firstChargingTime;
+        int firstBtcEndTime = 4*60;
+        int firstChargingTime = (int)(60 * (float)batterySize/(float) firstChargerPower);//min
+        int firstBtcStartTime = firstBtcEndTime-firstChargingTime;
         curBus.addChargeTime(new String[]{"E",timeTranslateToString(firstBtcStartTime,":"),timeTranslateToString(firstBtcEndTime,":")});
 
         int firstBtSoc = (int)(rate * batterySize);
 
         String firstTripId = "E" + timeTranslateToString(MacdonaldSchedule.get(0),"-");
         String firstTripStartTime = timeTranslateToString(MacdonaldSchedule.get(0),"h");
-        String firstTripEndTime = timeTranslateToString(MacdonaldSchedule.get(0)+1,"h");
+        String firstTripEndTime = timeTranslateToString(MacdonaldSchedule.get(0)+60,"h");
         curBus.addAssignTrip(new String[]{"E",firstTripStartTime,firstTripEndTime});
         curBus.setCurFinshTrip(firstTripId);
 
         //the state after assign trip
         curBus.setCurLocation("W");
-        curBus.setCurTime(MacdonaldSchedule.get(0)+1);
+        curBus.setCurTime(MacdonaldSchedule.get(0)+60);
         curBus.setCurState(firstBtSoc - totalS);
         
         int index = 0;
@@ -174,10 +174,10 @@ public class ScheduleGenerator {
 
     //----------------------------------------Read bus schedule File-----------------------------------------------------
 
-    private List<Float> readBusSchedule(String fileName){
-        List<Float> busSchedule = new ArrayList<>();
+    private List<Integer> readBusSchedule(String fileName){
+        List<Integer> busSchedule = new ArrayList<>();
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            busSchedule = stream.map(line-> timeTranslateToFloat(line,":")).collect(Collectors.toList());
+            busSchedule = stream.map(line-> timeTranslateToInt(line,":")).collect(Collectors.toList());
         } catch (IOException e) {
             System.out.println("Read file Error!");
         }
@@ -193,17 +193,17 @@ public class ScheduleGenerator {
         curBus.setCurState(batterySize);
         System.out.println("Add new bus" + busId);
         if (MacdonaldSchedule.isEmpty()){
-            updateCurBus(LionelSchedule.get(0),"","","","E");
+            updateCurBus(LionelSchedule.get(0),"","","","W");
             LionelSchedule.remove(0);
         }else if (LionelSchedule.isEmpty()){
-            updateCurBus(MacdonaldSchedule.get(0),"","","","W");
+            updateCurBus(MacdonaldSchedule.get(0),"","","","E");
             MacdonaldSchedule.remove(0);
         } else {
             if (MacdonaldSchedule.get(0)<= LionelSchedule.get(0)){//choose the earliest time in Mac
-                updateCurBus(MacdonaldSchedule.get(0),"","","","W");
+                updateCurBus(MacdonaldSchedule.get(0),"","","","E");
                 MacdonaldSchedule.remove(0);
             }else{//choose the earliest time in Lio
-                updateCurBus(LionelSchedule.get(0),"","","","E");
+                updateCurBus(LionelSchedule.get(0),"","","","W");
                 LionelSchedule.remove(0);
             }
         }
@@ -212,22 +212,25 @@ public class ScheduleGenerator {
 
     private void createPerBusSchedule(String location){
         String station;
+        List<Integer> locStationSchedule;
         if(location.equals("W")){
             station = "LG";
+            locStationSchedule = LionelSchedule;
         }else {
             station = "M";
+            locStationSchedule = MacdonaldSchedule;
         }
         System.out.println("Start next trip");
         if (curBus.getCurState() < 0.5 * batterySize){//need to charge
             System.out.println("Need to charge");
             String chargerId = "";
-            float assignTripStartTime = 0;
-            float btcStartTime = 0;
-            float btcEndTime = 0;
-            for (float time: LionelSchedule) {
+            int assignTripStartTime = 0;
+            int btcStartTime = 0;
+            int btcEndTime = 0;
+            for (Integer time: locStationSchedule) {
                 if (curBus.getCurTime() < time){
-                    float ocChargeTime = (float)(batterySize - (curBus.getCurState()/rate))/(float)ocPower;
-                    float onChargeTime = (float)(batterySize - (curBus.getCurState()/rate))/(float)onPower;
+                    int ocChargeTime = (int)(60*(float)(batterySize - (curBus.getCurState()/rate))/(float)ocPower);
+                    int onChargeTime = (int)(60*(float)(batterySize - (curBus.getCurState()/rate))/(float)onPower);
                     btcStartTime = curBus.getCurTime();
                     if (time - curBus.getCurTime() <= 0.3 && time > curBus.getCurTime() + ocChargeTime){//use OC charger
                         System.out.println("Use OC charger");
@@ -252,8 +255,8 @@ public class ScheduleGenerator {
 
         }else {//not need to charge
             System.out.println("No need to charge");
-            float assignTripStartTime = 0;
-            for (float time: LionelSchedule) {
+            int assignTripStartTime = 0;
+            for (Integer time: locStationSchedule) {
                 if (curBus.getCurTime() < time){
                     assignTripStartTime = time;
                     LionelSchedule.remove(time);
@@ -267,10 +270,10 @@ public class ScheduleGenerator {
         }
     }
 
-    private void updateCurBus(float assignTripStartTime,String chargerId, String btcStartTime, String btcEndTime, String location){
+    private void updateCurBus(int assignTripStartTime,String chargerId, String btcStartTime, String btcEndTime, String location){
         System.out.println("update the bus current state");
         String tripID = location + timeTranslateToString(assignTripStartTime,"-");
-        createNewScheduleLine(String.valueOf(curBus.getBusId()),String.valueOf(batterySize),curBus.getCurFinshTrip(),String.valueOf(curBus.getCurState()),chargerId,btcStartTime,btcEndTime,String.valueOf(curBus.getCurState()),tripID,timeTranslateToString(assignTripStartTime,"h"),timeTranslateToString(assignTripStartTime+1,"h"));
+        createNewScheduleLine(String.valueOf(curBus.getBusId()),String.valueOf(batterySize),curBus.getCurFinshTrip(),String.valueOf(curBus.getCurState()),chargerId,btcStartTime,btcEndTime,String.valueOf(curBus.getCurState()),tripID,timeTranslateToString(assignTripStartTime,"h"),timeTranslateToString(assignTripStartTime+60,"h"));
         curBus.setCurState(curBus.getCurState()- totalS);
         if (location.equals("W")){
             curBus.setCurLocation("E");
@@ -306,30 +309,54 @@ public class ScheduleGenerator {
 
     //----------------------------------------time translate tools-----------------------------------------------------
 
-    private String timeTranslateToString(float time ,String separator){
-        String e = String.valueOf(time);
-        float s = Float.valueOf(e);
-        int num1 = (int) s;
-        BigDecimal b1 = new BigDecimal(e);
-        BigDecimal b2 = new BigDecimal(num1);
-        float num2 = b1.subtract(b2).floatValue();
-        if (num1<0){
-            num1 = 12+num1;
+    private String timeTranslateToString(int min ,String separator){
+        int hours = min / 60;
+        int minutes = min % 60;
+
+        if (hours < 0){
+            hours = 12+hours;
         }
-        if (num1>=24){
-            num1 = num1-24;
+        if (hours>=24){
+            hours = hours-24;
         }
-        return num1 + separator + (int)Math.ceil(num2 * 60);
+        return hours + separator + minutes;
     }
 
-    private float timeTranslateToFloat(String time, String separator){
-        float hour = Float.parseFloat(time.split(separator)[0]);
+//    private String timeTranslateToString(float time ,String separator){
+//        String e = String.valueOf(time);
+//        float s = Float.valueOf(e);
+//        int num1 = (int) s;
+//        BigDecimal b1 = new BigDecimal(e);
+//        BigDecimal b2 = new BigDecimal(num1);
+//        float num2 = b1.subtract(b2).floatValue();
+//        if (num1<0){
+//            num1 = 12+num1;
+//        }
+//        if (num1>=24){
+//            num1 = num1-24;
+//        }
+//        return num1 + separator + (int)Math.ceil(num2 * 60);
+//    }
+
+    private Integer timeTranslateToInt(String time, String separator){
+        int min;
         if (time.split(separator)[0].equals("0")||time.split(separator)[0].equals("1") ){//should optimal
-            hour = 24 + hour;
+            min = Integer.parseInt(time.split(separator)[0])*60 + 24*60 + Integer.parseInt(time.split(separator)[1]);
+        }else{
+            min = Integer.parseInt(time.split(separator)[0])*60 + Integer.parseInt(time.split(separator)[1]);
         }
-        float min = (float)Float.parseFloat(time.split(separator)[1])/60;
-        return hour + min;
+        return min;
     }
+
+//    private float timeTranslateToInt(String time, String separator){
+//        float hour = Float.parseFloat(time.split(separator)[0]);
+//        if (time.split(separator)[0].equals("0")||time.split(separator)[0].equals("1") ){//should optimal
+//            hour = 24 + hour;
+//        }
+//        float min = (float)Float.parseFloat(time.split(separator)[1])/60;
+//        return hour + min;
+//
+//    }
 
 
     //-----------------------------------------------get set------------------------------------------------------------------

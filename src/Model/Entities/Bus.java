@@ -9,7 +9,7 @@ public class Bus {
     private String curFinshTrip;
     private int curState;
     private String curLocation;//where is the bus after last operation
-    private float curTime;//what time is it after last operation
+    private int curTime;//what time is it after last operation
 
     public Bus(String busId) {
         this.busId = busId;
@@ -57,11 +57,11 @@ public class Bus {
         this.curLocation = curLocation;
     }
 
-    public float getCurTime() {
+    public int getCurTime() {
         return curTime;
     }
 
-    public void setCurTime(float curTime) {
+    public void setCurTime(int curTime) {
         this.curTime = curTime;
     }
 
