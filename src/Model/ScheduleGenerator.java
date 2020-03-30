@@ -44,17 +44,16 @@ public class ScheduleGenerator {
     }
 
     private void generateSchedule(){
-        //Lionel : 5h22 start 1h20 end , 1h/turn, 60 turns/ per day
+        //Lionel : 5h22 start 1h20 end , 1h/turn
         //battery size Q : 294/394 kwh (only one)
         //charger W: 450kw,50kw/ 300kw,100kw  (choose one pair only)
         //charge time t: t = Q/W (The Q here is the battery size left after driving, not the total size)
         //Total distance: 40km(assume)
-        //Bus speed V:  40km/h(assume)
         //1 km/kwh(assume), can drive 294km/394km after full charge
 
         //Policy:
         //If battery lower than 50% (the rest can drive less than xx km), go to charge until it full （OC or ON）
-        //If waiting time longer than 0.3 hour ,use slower charger(overnight), else use fast charger (opportunity)
+        //If waiting time longer than 0.3 hour ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time
         //If not caught new time , add one bus
         //If no free charger when a bus need charge, add one charger
 
@@ -79,28 +78,13 @@ public class ScheduleGenerator {
         String firstTripComp = "";
         int firstAtSoc = batterySize*rate;
 
-        int firstChargerIdSeq = 1;
-//        String firstChargerLoc = "M";
-//        String firstChargerType = "";
-//        int firstChargerPower = 100000;
         for (ChargerModel chargerModel: chargerModels) {
             if (chargerModel.getType().equals("OC")){
                 ocPower = chargerModel.getChargerPower();
             }else if (chargerModel.getType().equals("ON")){
                 onPower = chargerModel.getChargerPower();
             }
-
-//            if (chargerModel.getChargerPower() < firstChargerPower){
-//                firstChargerPower = chargerModel.getChargerPower();
-//                firstChargerType = chargerModel.getType();
-//            }
         }
-//        String firstChargerId = firstChargerLoc +"-"+ firstChargerType +"-"+ firstChargerPower +"-"+ firstChargerIdSeq;
-
-//        int firstBtcEndTime = 4*60;
-//        int firstChargingTime = (int)(60 * (float)batterySize/(float) firstChargerPower);//min
-//        int firstBtcStartTime = firstBtcEndTime-firstChargingTime;
-//        curBus.addChargeTime(new String[]{"E",timeTranslateToString(firstBtcStartTime,":"),timeTranslateToString(firstBtcEndTime,":")});
 
         int firstBtSoc = (int)(rate * batterySize);
 
@@ -277,15 +261,18 @@ public class ScheduleGenerator {
             int assignTripStartTime = 0;
             int btcStartTime = 0;
             int btcEndTime = 0;
+            int atSoc = curBus.getCurState();
             for (Integer time: curLocSchedule) {
+
                 if (curBus.getCurTime() < time){
-                    int ocChargeTime = (int)(60*(float)(batterySize - (curBus.getCurState()/rate))/(float)ocPower);
+                    int ocChargeTime = (int)(60*(float)((totalS/rate) - (curBus.getCurState()/rate))/(float)ocPower);
                     int onChargeTime = (int)(60*(float)(batterySize - (curBus.getCurState()/rate))/(float)onPower);
                     btcStartTime = curBus.getCurTime();
-                    if (time - curBus.getCurTime() <= 0.3 && time > curBus.getCurTime() + ocChargeTime){//use OC charger
+                    if (time - curBus.getCurTime() <= 20 && time > curBus.getCurTime() + ocChargeTime){//use OC charger
                         System.out.println("Use OC charger");
                         btcEndTime = btcStartTime + ocChargeTime;
                         chargerId = addChargerTime(curLocChargerList,"OC",location,station,btcStartTime,btcEndTime);
+                        curBus.setCurState(totalS);
 
                     }else {//use ON charger
                         if (btcEndTime > time){
@@ -294,15 +281,16 @@ public class ScheduleGenerator {
                         System.out.println("Use ON charger");
                         btcEndTime = btcStartTime + onChargeTime;
                         chargerId = addChargerTime(curLocChargerList,"ON",location,station,btcStartTime,btcEndTime);
+                        curBus.setCurState(batterySize);
                     }
                     assignTripStartTime = time;
                     curLocSchedule.remove(time);
                     System.out.println("Now assign time" + time);
                     break;
                 }
+
             }
-            int atSoc = curBus.getCurState();
-            curBus.setCurState(batterySize);
+
             updateCurBus(assignTripStartTime,atSoc,chargerId,timeTranslateToString(btcStartTime,"h"),timeTranslateToString(btcEndTime,"h"),location);
 
         }else {//not need to charge
