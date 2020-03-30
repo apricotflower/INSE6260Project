@@ -1,4 +1,4 @@
-package Entities;
+package Model.Entities;
 
 public class BusBatteryConfig {
     private String busType;

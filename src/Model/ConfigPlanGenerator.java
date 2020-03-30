@@ -1,43 +1,29 @@
 package Model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import Entities.ChargerModel;
-import Entities.BusBatteryConfig;
+import Model.Entities.ChargerModel;
+import Model.Entities.BusBatteryConfig;
 
 public class ConfigPlanGenerator {
     private ArrayList<ChargerModel> chargerModels;
     private BusBatteryConfig busBatteryConfig;
-    private float expenditure;
     private int busNumber;
-//    private HashMap<String,Integer> chargerLionelGroulx;
-//    private HashMap<String,Integer> chargerMacDonald;
+    private ScheduleGenerator scheduleGenerator;
+    private float expenditure;
 
     public ConfigPlanGenerator(ArrayList<ChargerModel> chargerModels, BusBatteryConfig busBatteryConfig) {
         this.chargerModels = chargerModels;
         this.busBatteryConfig = busBatteryConfig;
         generateConfigPlan();
-
     }
 
     private void generateConfigPlan(){
-        this.busNumber = 100;
-//        this.chargerLionelGroulx.put("OC 450kW",20);
-//        this.chargerLionelGroulx.put("FAST DC 50kW", 30);
-//        this.chargerMacDonald.put("OC 450kW",40);
-//        this.chargerMacDonald.put("FAST DC 50kW", 70);
+        scheduleGenerator = new ScheduleGenerator(this);
+        this.chargerModels = scheduleGenerator.getChargerModels();
+        this.busNumber = scheduleGenerator.getBusNumber();
+        this.busBatteryConfig = scheduleGenerator.getBusBatteryConfig();
 
-        int c = 0;
-        int chargerPriceSum = 0;
-        for(ChargerModel chargerModel:chargerModels){
-            chargerPriceSum = chargerModel.getChargerPrice() + chargerPriceSum;
-            chargerModel.setLionelGroulxNumber(String.valueOf(33+c));
-            chargerModel.setMacDonaldNumber(String.valueOf(44+c));
-            c++;
-        }
-        busBatteryConfig.setNumber(String.valueOf(this.busNumber));
-        this.expenditure = (float)(chargerPriceSum + busBatteryConfig.getUnitPrice()*Integer.parseInt(busBatteryConfig.getNumber()));
     }
 
     public int getBusNumber() {
@@ -48,28 +34,19 @@ public class ConfigPlanGenerator {
         this.busNumber = busNumber;
     }
 
-//    public HashMap<String, Integer> getChargerLionelGroulx() {
-//        return chargerLionelGroulx;
-//    }
-//
-//    public void setChargerLionelGroulx(HashMap<String, Integer> chargerLionelGroulx) {
-//        this.chargerLionelGroulx = chargerLionelGroulx;
-//    }
-//
-//    public HashMap<String, Integer> getChargerMacDonald() {
-//        return chargerMacDonald;
-//    }
-//
-//    public void setChargerMacDonald(HashMap<String, Integer> chargerMacDonald) {
-//        this.chargerMacDonald = chargerMacDonald;
-//    }
-
     public float getExpenditure() {
         int chargerPriceSum = 0;
         for (ChargerModel chargerModel:this.chargerModels){
-            chargerPriceSum = chargerPriceSum + chargerModel.getChargerPrice();
+            System.out.println(chargerModel.getChargerModel());
+            int chargerNum = Integer.parseInt(chargerModel.getLionelGroulxNumber()) + Integer.parseInt(chargerModel.getMacDonaldNumber());
+            System.out.println("Charger number: " + chargerNum);
+            int chargerPrice = chargerModel.getChargerPrice() * chargerNum;
+            System.out.println("charger price: " + chargerPrice);
+            chargerPriceSum = chargerPriceSum + chargerPrice;
         }
-        return this.expenditure = (float)(chargerPriceSum + busBatteryConfig.getUnitPrice()*Integer.parseInt(busBatteryConfig.getNumber()));
+        this.expenditure = (float)(chargerPriceSum + busBatteryConfig.getUnitPrice()*Integer.parseInt(busBatteryConfig.getNumber()));
+        System.out.println(this.expenditure);
+        return this.expenditure;
     }
 
 
@@ -87,5 +64,13 @@ public class ConfigPlanGenerator {
 
     public void setBusBatteryConfig(BusBatteryConfig busBatteryConfig) {
         this.busBatteryConfig = busBatteryConfig;
+    }
+
+    public ScheduleGenerator getScheduleGenerator() {
+        return scheduleGenerator;
+    }
+
+    public void setScheduleGenerator(ScheduleGenerator scheduleGenerator) {
+        this.scheduleGenerator = scheduleGenerator;
     }
 }

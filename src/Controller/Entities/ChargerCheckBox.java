@@ -1,4 +1,4 @@
-package Entities;
+package Controller.Entities;
 
 import javafx.scene.control.CheckBox;
 

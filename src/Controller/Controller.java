@@ -1,6 +1,9 @@
-import Entities.ChargerCheckBox;
-import Entities.ChargerModel;
+package Controller;
+
+import Controller.Entities.ChargerCheckBox;
+import Model.Entities.ChargerModel;
 import Model.ConfigPlanGenerator;
+import Model.Entities.ScheduleLine;
 import Model.ScheduleGenerator;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,12 +15,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
 
-import Entities.BusBatteryConfig;
+import Model.Entities.BusBatteryConfig;
 
 
 public class Controller {
@@ -45,27 +47,59 @@ public class Controller {
     @FXML
     public Label costLabel;
     @FXML
-    public TableColumn planBusType;
+    public Label cost;
+
+    //bus
+    @FXML
+    public TableView busTable;
     @FXML
     public TableColumn planBusNumber;
     @FXML
     public TableColumn planBattery;
+    @FXML
+    public TableColumn planBusType;
+
+    //charger
+    @FXML
+    public TableView chargerTable;
     @FXML
     public TableColumn planChargerType;
     @FXML
     public TableColumn planNumLionel;
     @FXML
     public TableColumn planMacDonald;
+
+    //schedule
     @FXML
-    public TableView chargerTable;
+    public TableView scheduleTable;
     @FXML
-    public TableView busTable;
+    public TableColumn busId;
     @FXML
-    public Label cost;
+    public TableColumn batterySizeSchCol;
+    @FXML
+    public TableColumn tripComp;
+    @FXML
+    public TableColumn atSoc;
+    @FXML
+    public TableColumn chargerId;
+    @FXML
+    public TableColumn btcStartTime;
+    @FXML
+    public TableColumn btcEndTime;
+    @FXML
+    public TableColumn btSoc;
+    @FXML
+    public TableColumn tripId;
+    @FXML
+    public TableColumn taStartTime;
+    @FXML
+    public TableColumn taEndTime;
 
 
     ConfigPlanGenerator configPlanGenerator;
     ScheduleGenerator scheduleGenerator;
+
+
 
 
     public void initialize() {
@@ -90,6 +124,8 @@ public class Controller {
 
 
     }
+
+    //-------------------------------------------------set initial config------------------------------------------------------------
 
     public void loadData(){
         chargerListManufacture = new ArrayList<>();
@@ -150,6 +186,8 @@ public class Controller {
         chargerModelPower.setItems(items);
     }
 
+    //----------------------------------------------modify data in configuration plan---------------------------------------------------
+
     @FXML
     public void tableBusListener(TableColumn.CellEditEvent<BusBatteryConfig,String> value) {
         TableColumn<BusBatteryConfig, String> editedCol = value.getTableColumn();
@@ -178,6 +216,7 @@ public class Controller {
         cost.setText(String.valueOf(configPlanGenerator.getExpenditure()));
     }
 
+   // ---------------------------------------------generate configuration plan and schedule-----------------------------------------------
 
     private void generateBusPlan(){
         ObservableList<BusBatteryConfig> busList = FXCollections.observableArrayList();
@@ -203,6 +242,33 @@ public class Controller {
         planNumLionel.setCellFactory(TextFieldTableCell.forTableColumn());
         planMacDonald.setCellFactory(TextFieldTableCell.forTableColumn());
     }
+
+    public void generateSchedule(){
+        ObservableList<ScheduleLine> scheduleList = FXCollections.observableArrayList();
+        for (ScheduleLine scheduleLine: configPlanGenerator.getScheduleGenerator().getScheduleLines()){
+            scheduleList.add(scheduleLine);
+        }
+
+        scheduleTable.setItems(FXCollections.observableArrayList(scheduleList));
+
+        busId.setCellValueFactory(new PropertyValueFactory<String,String>("busId"));
+        batterySizeSchCol.setCellValueFactory(new PropertyValueFactory<String,String>("batterySizeSchCol"));
+        tripComp.setCellValueFactory(new PropertyValueFactory<String,String>("tripComp"));
+        atSoc.setCellValueFactory(new PropertyValueFactory<String,String>("atSoc"));
+        chargerId.setCellValueFactory(new PropertyValueFactory<String,String>("chargerId"));
+        btcStartTime.setCellValueFactory(new PropertyValueFactory<String,String>("btcStartTime"));
+        btcEndTime.setCellValueFactory(new PropertyValueFactory<String,String>("btcEndTime"));
+        btSoc.setCellValueFactory(new PropertyValueFactory<String,String>("btSoc"));
+        tripId.setCellValueFactory(new PropertyValueFactory<String,String>("tripId"));
+        taStartTime.setCellValueFactory(new PropertyValueFactory<String,String>("taStartTime"));
+        taEndTime.setCellValueFactory(new PropertyValueFactory<String,String>("taEndTime"));
+
+    }
+
+
+    //---------------------------------------------------------Run button and Display button---------------------------------------------------------
+
+
 
 
     private void setDisplayButton(){
@@ -264,6 +330,7 @@ public class Controller {
                 generateBusPlan();
                 generateChargerPlan();
                 cost.setText(String.valueOf(configPlanGenerator.getExpenditure()));
+                generateSchedule();
 
             }
         });

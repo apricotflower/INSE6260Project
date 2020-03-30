@@ -1,4 +1,4 @@
-package Entities;
+package Model.Entities;
 
 public class ChargerModel {
     private String chargerManufacture;
@@ -7,12 +7,18 @@ public class ChargerModel {
     private int chargerPrice;
     private String LionelGroulxNumber;
     private String MacDonaldNumber;
+    private String type;
 
     public ChargerModel(String chargerManufacture, String chargerModel, int chargerPower, int chargerPrice) {
         this.chargerManufacture = chargerManufacture;
         this.chargerModel = chargerModel;
         this.chargerPower = chargerPower;
         this.chargerPrice = chargerPrice;
+        if (chargerPower <= 100){
+            this.type = "ON";
+        }else {
+            this.type = "OC";
+        }
     }
 
     public String getChargerManufacture() {
@@ -61,5 +67,13 @@ public class ChargerModel {
 
     public void setMacDonaldNumber(String macDonaldNumber) {
         MacDonaldNumber = macDonaldNumber;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
