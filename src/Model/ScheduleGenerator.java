@@ -53,7 +53,7 @@ public class ScheduleGenerator {
 
         //Policy:
         //If battery lower than 50% (the rest can drive less than xx km), go to charge until it full （OC or ON）
-        //If waiting time longer than 0.3 hour ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time
+        //If waiting time longer than 30min ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time + 50% battery
         //If not caught new time , add one bus
         //If no free charger when a bus need charge, add one charger
 
@@ -197,7 +197,7 @@ public class ScheduleGenerator {
     }
 
     private String addNewCharger(int chargerNum,int power,String location,String type,String station,Integer btcStartTime, Integer btcEndTime, List<Charger> curLocChargerList){
-        Charger charger = new Charger(curLocChargerList.size()+1);
+        Charger charger = new Charger(chargerNum);
         charger.setChargerPower(power);
         charger.setLocation(location);
         charger.setType(type);
@@ -215,31 +215,34 @@ public class ScheduleGenerator {
             power = onPower;
         }
 
-        if(curLocChargerList.isEmpty()){
+        if(curLocChargerList.stream().filter(charger -> charger.getType().equals(type)).collect(Collectors.toList()).size() == 0){
             return addNewCharger(1,power,location,type,station,btcStartTime,btcEndTime,curLocChargerList);
 
         }else{
             for (Charger charger: curLocChargerList) {
-                boolean timeIsOccupy = false;
-                for (Integer[] chargeTime: charger.getOccupyTimeList()) {
-                    if(btcStartTime >= chargeTime[0] && btcStartTime < chargeTime[1]){
-                        timeIsOccupy = true;
-                        break;
+                if(type.equals(charger.getType())){
+                    boolean timeIsOccupy = false;
+                    for (Integer[] chargeTime: charger.getOccupyTimeList()) {
+                        if(btcStartTime >= chargeTime[0] && btcStartTime < chargeTime[1]){
+                            timeIsOccupy = true;
+                            break;
+                        }
+                        if(btcEndTime > chargeTime[0] && btcEndTime <= chargeTime[1]){
+                            timeIsOccupy = true;
+                            break;
+                        }
                     }
-                    if(btcEndTime > chargeTime[0] && btcEndTime <= chargeTime[1]){
-                        timeIsOccupy = true;
-                        break;
+                    if(!timeIsOccupy){
+                        charger.addOccupyTime(new Integer[]{btcStartTime,btcEndTime});
+                        return station + "-" + type + "-" + power + "-" + charger.getChargerId();
                     }
-                }
-                if(!timeIsOccupy){
-                    charger.addOccupyTime(new Integer[]{btcStartTime,btcEndTime});
-                    return station + "-" + type + "-" + power + "-" + charger.getChargerId();
                 }
             }
 
-            return addNewCharger(curLocChargerList.size()+1,power,location,type,station,btcStartTime,btcEndTime,curLocChargerList);
+            return addNewCharger(curLocChargerList.stream().filter(charger -> charger.getType().equals(type)).collect(Collectors.toList()).size()+1,power,location,type,station,btcStartTime,btcEndTime,curLocChargerList);
         }
     }
+
 
     private void createPerBusSchedule(String location){
         String station;
@@ -265,14 +268,14 @@ public class ScheduleGenerator {
             for (Integer time: curLocSchedule) {
 
                 if (curBus.getCurTime() < time){
-                    int ocChargeTime = (int)(60*(float)((totalS/rate) - (curBus.getCurState()/rate))/(float)ocPower);
+                    int ocChargeTime = (int)(60*(float)(((totalS+0.5*batterySize)/rate) - (curBus.getCurState()/rate))/(float)ocPower);
                     int onChargeTime = (int)(60*(float)(batterySize - (curBus.getCurState()/rate))/(float)onPower);
                     btcStartTime = curBus.getCurTime();
                     if (time - curBus.getCurTime() <= 20 && time > curBus.getCurTime() + ocChargeTime){//use OC charger
                         System.out.println("Use OC charger");
                         btcEndTime = btcStartTime + ocChargeTime;
                         chargerId = addChargerTime(curLocChargerList,"OC",location,station,btcStartTime,btcEndTime);
-                        curBus.setCurState(totalS);
+                        curBus.setCurState((int)(totalS+0.5*batterySize));
 
                     }else {//use ON charger
                         if (btcEndTime > time){
@@ -288,7 +291,7 @@ public class ScheduleGenerator {
                     System.out.println("Now assign time" + time);
                     break;
                 }
-
+//add
             }
 
             updateCurBus(assignTripStartTime,atSoc,chargerId,timeTranslateToString(btcStartTime,"h"),timeTranslateToString(btcEndTime,"h"),location);
@@ -347,10 +350,10 @@ public class ScheduleGenerator {
     }
 
     public void setChargerNum(ChargerModel chargerModel, String type){
-        List<Charger> onLionelList = LionelChargerList.stream().filter(charger->!charger.getType().equals(type)).collect(Collectors.toList());
-        List<Charger> onMacList = MacChargerList.stream().filter(charger->!charger.getType().equals(type)).collect(Collectors.toList());
-        chargerModel.setLionelGroulxNumber(String.valueOf(onLionelList.size()));
-        chargerModel.setMacDonaldNumber(String.valueOf(onMacList.size()));
+        List<Charger> LionelList = LionelChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
+        List<Charger> MacList = MacChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
+        chargerModel.setLionelGroulxNumber(String.valueOf(LionelList.size()));
+        chargerModel.setMacDonaldNumber(String.valueOf(MacList.size()));
     }
 
     //----------------------------------------time translate tools-----------------------------------------------------
