@@ -71,15 +71,8 @@ public class ScheduleGenerator {
         MacChargerList = new ArrayList<>();
         LionelChargerList = new ArrayList<>();
 
-
-        //first Line
-        int busId = 1;
         batterySize = busBatteryConfig.getBatterySize();
         policy_min_state = 0.5 * batterySize;
-        curBus = new Bus(String.valueOf(busId));
-
-        String firstTripComp = "";
-        int firstAtSoc = batterySize*rate;
 
         for (ChargerModel chargerModel: chargerModels) {
             if (chargerModel.getType().equals("OC")){
@@ -89,27 +82,9 @@ public class ScheduleGenerator {
             }
         }
 
-        int firstBtSoc = (int)(rate * batterySize);
+        //first Line
+        addNewBus();
 
-        String firstTripId = "E" + timeTranslateToString(MacdonaldSchedule.get(0),"-");
-        String firstTripStartTime = timeTranslateToString(MacdonaldSchedule.get(0),"h");
-        String firstTripEndTime = timeTranslateToString(MacdonaldSchedule.get(0)+60,"h");
-        curBus.addAssignTrip(new String[]{"E",firstTripStartTime,firstTripEndTime});
-        curBus.setCurFinshTrip(firstTripId);
-
-        //the state after assign trip
-        curBus.setCurLocation("W");
-        curBus.setCurTime(MacdonaldSchedule.get(0)+60);
-        curBus.setCurState(firstBtSoc - totalS);
-        
-        int index = 0;
-        MacdonaldSchedule.remove(index);
-
-        //put all attribute into one line in the schedule
-        createNewScheduleLine(String.valueOf(busId),String.valueOf(batterySize),firstTripComp,String.valueOf(firstAtSoc),"","","",String.valueOf(firstBtSoc),firstTripId,firstTripStartTime,firstTripEndTime);
-
-        //add current bus in busList
-        busList.add(curBus);
 
         while (!MacdonaldSchedule.isEmpty() || !LionelSchedule.isEmpty()){
             //if ocPower != 0 and onPower != 0
@@ -164,8 +139,13 @@ public class ScheduleGenerator {
     //----------------------------------------------create and update----------------------------------------------------------
 
     private void addNewBus(){
-        int busId = Integer.parseInt(curBus.getBusId());
-        busId++;
+        int busId = 0;
+        if(curBus == null){
+            busId = 1;
+        }else{
+            busId = Integer.parseInt(curBus.getBusId());
+            busId++;
+        }
         curBus = new Bus(String.valueOf(busId));
         curBus.setCurState(batterySize);
         System.out.println("Add new bus" + busId);
