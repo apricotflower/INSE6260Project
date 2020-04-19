@@ -23,6 +23,8 @@ public class ScheduleGenerator {
     private int batterySize;
     private int ocPower = 0;
     private int onPower = 0;
+    private double policy_min_state;
+    private  int policy_oc_on_condition = 20;
 
     private ArrayList<ScheduleLine> scheduleLines;
     private List<Integer> MacdonaldSchedule;//min
@@ -52,8 +54,8 @@ public class ScheduleGenerator {
         //1 km/kwh(assume), can drive 294km/394km after full charge
 
         //Policy:
-        //If battery lower than 50% (the rest can drive less than xx km), go to charge until it full （OC or ON）
-        //If waiting time longer than 30min ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time + 50% battery
+        //If battery lower than 50% (the rest can drive less than xx km), go to charge.（OC or ON）
+        //If waiting time longer than 20min ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time + 50% battery
         //If not caught new time , add one bus
         //If no free charger when a bus need charge, add one charger
 
@@ -73,6 +75,7 @@ public class ScheduleGenerator {
         //first Line
         int busId = 1;
         batterySize = busBatteryConfig.getBatterySize();
+        policy_min_state = 0.5 * batterySize;
         curBus = new Bus(String.valueOf(busId));
 
         String firstTripComp = "";
@@ -129,7 +132,7 @@ public class ScheduleGenerator {
                     addNewBus();
                     continue;
                 }
-                createPerBusSchedule("W");
+                chargerAssigner("W");
 
             }else{
                 System.out.println("Now in location E Macdonald");
@@ -137,7 +140,7 @@ public class ScheduleGenerator {
                     addNewBus();
                     continue;
                 }
-                createPerBusSchedule("E");
+                chargerAssigner("E");
 
             }
         }
@@ -244,7 +247,7 @@ public class ScheduleGenerator {
     }
 
 
-    private void createPerBusSchedule(String location){
+    private void chargerAssigner(String location){
         String station;
         List<Integer> curLocSchedule;
         List<Charger> curLocChargerList;
@@ -258,7 +261,7 @@ public class ScheduleGenerator {
             curLocChargerList = MacChargerList;
         }
         System.out.println("Start next trip");
-        if (curBus.getCurState() < 0.5 * batterySize){//need to charge
+        if (curBus.getCurState() < policy_min_state){//need to charge
             System.out.println("Need to charge");
             String chargerId = "";
             int assignTripStartTime = 0;
@@ -271,11 +274,11 @@ public class ScheduleGenerator {
                     int ocChargeTime = (int)(60*(float)(((totalS+0.5*batterySize)/rate) - (curBus.getCurState()/rate))/(float)ocPower);
                     int onChargeTime = (int)(60*(float)(batterySize - (curBus.getCurState()/rate))/(float)onPower);
                     btcStartTime = curBus.getCurTime();
-                    if (time - curBus.getCurTime() <= 20 && time > curBus.getCurTime() + ocChargeTime){//use OC charger
+                    if (time - curBus.getCurTime() <= policy_oc_on_condition && time > curBus.getCurTime() + ocChargeTime){//use OC charger
                         System.out.println("Use OC charger");
                         btcEndTime = btcStartTime + ocChargeTime;
                         chargerId = addChargerTime(curLocChargerList,"OC",location,station,btcStartTime,btcEndTime);
-                        curBus.setCurState((int)(totalS+0.5*batterySize));
+                        curBus.setCurState((int)(totalS+0.5*batterySize));//update the curState of oc charger
 
                     }else {//use ON charger
                         if (btcEndTime > time){
@@ -284,7 +287,7 @@ public class ScheduleGenerator {
                         System.out.println("Use ON charger");
                         btcEndTime = btcStartTime + onChargeTime;
                         chargerId = addChargerTime(curLocChargerList,"ON",location,station,btcStartTime,btcEndTime);
-                        curBus.setCurState(batterySize);
+                        curBus.setCurState(batterySize);//update the curState of on charger
                     }
                     assignTripStartTime = time;
                     curLocSchedule.remove(time);
