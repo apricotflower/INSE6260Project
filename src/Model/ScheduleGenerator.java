@@ -106,22 +106,10 @@ public class ScheduleGenerator {
         MacdonaldSchedule.remove(index);
 
         //put all attribute into one line in the schedule
-        ScheduleLine firstScheduleLine = new ScheduleLine();
-        firstScheduleLine.setBusId(String.valueOf(busId));
-        firstScheduleLine.setTripComp(firstTripComp);
-        firstScheduleLine.setAtSoc(String.valueOf(firstAtSoc));
-        firstScheduleLine.setChargerId("");
-        firstScheduleLine.setBtcStartTime("");
-        firstScheduleLine.setBtcEndTime("");
-        firstScheduleLine.setBtSoc(String.valueOf(firstBtSoc));
-        firstScheduleLine.setBatterySizeSchCol(String.valueOf(batterySize));
-        firstScheduleLine.setTripId(firstTripId);
-        firstScheduleLine.setTaStartTime(firstTripStartTime);
-        firstScheduleLine.setTaEndTime(firstTripEndTime);
+        createNewScheduleLine(String.valueOf(busId),String.valueOf(batterySize),firstTripComp,String.valueOf(firstAtSoc),"","","",String.valueOf(firstBtSoc),firstTripId,firstTripStartTime,firstTripEndTime);
 
-        //add bus and schedule
+        //add current bus in busList
         busList.add(curBus);
-        scheduleLines.add(firstScheduleLine);
 
         while (!MacdonaldSchedule.isEmpty() || !LionelSchedule.isEmpty()){
             //if ocPower != 0 and onPower != 0
