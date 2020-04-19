@@ -10,31 +10,45 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/*
+Lionel : 5h22 start 1h20 end , 1h/turn
+battery size Q : 294/394 kwh (only one)
+charger W: 450kw,50kw/ 300kw,100kw  (choose one pair only)
+charge time t: t = Q/W (The Q here is the battery size left after driving, not the total size)
+Total distance: 40km(assume)
+1 km/kwh(assume), can drive 294km/394km after full charge
+
+Policy:
+If battery lower than 50% (the rest can drive less than xx km), go to charge.（OC or ON）
+If waiting time longer than 20min ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time + 50% battery
+If not caught new time , add one bus
+If no free charger when a bus need charge, add one charger
+*/
+
 public class ScheduleGenerator {
 
-
-    public ConfigPlanGenerator configPlanGenerator;
+    private ConfigPlanGenerator configPlanGenerator;
 
     private int busNumber;
     private BusBatteryConfig busBatteryConfig;
     private ArrayList<ChargerModel> chargerModels;
-    private int totalS = 40;
-    private int rate = 1;
+    
+    private final int totalS = 40;
+    private final int rate = 1;
+    private final int policy_oc_on_condition = 20;
+
     private int batterySize;
     private int ocPower = 0;
     private int onPower = 0;
     private double policy_min_state;
-    private  int policy_oc_on_condition = 20;
 
     private ArrayList<ScheduleLine> scheduleLines;
-    private List<Integer> MacdonaldSchedule;//min
-    private List<Integer> LionelSchedule;//min
+    private List<Integer> MacdonaldSchedule;//unit:min
+    private List<Integer> LionelSchedule;//unit:min
     private ArrayList<Bus> busList;
     private List<Charger> MacChargerList;
     private List<Charger> LionelChargerList;
     private Bus curBus;
-
-
 
 
     public ScheduleGenerator(ConfigPlanGenerator configPlanGenerator) {
@@ -46,18 +60,6 @@ public class ScheduleGenerator {
     }
 
     private void generateSchedule(){
-        //Lionel : 5h22 start 1h20 end , 1h/turn
-        //battery size Q : 294/394 kwh (only one)
-        //charger W: 450kw,50kw/ 300kw,100kw  (choose one pair only)
-        //charge time t: t = Q/W (The Q here is the battery size left after driving, not the total size)
-        //Total distance: 40km(assume)
-        //1 km/kwh(assume), can drive 294km/394km after full charge
-
-        //Policy:
-        //If battery lower than 50% (the rest can drive less than xx km), go to charge.（OC or ON）
-        //If waiting time longer than 20min ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time + 50% battery
-        //If not caught new time , add one bus
-        //If no free charger when a bus need charge, add one charger
 
         //initialize
         scheduleLines = new ArrayList<>();
