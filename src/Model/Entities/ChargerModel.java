@@ -4,12 +4,12 @@ public class ChargerModel {
     private String chargerManufacture;
     private String chargerModel;
     private int chargerPower;
-    private int chargerPrice;
+    private double chargerPrice;
     private String LionelGroulxNumber;
     private String MacDonaldNumber;
     private String type;
 
-    public ChargerModel(String chargerManufacture, String chargerModel, int chargerPower, int chargerPrice) {
+    public ChargerModel(String chargerManufacture, String chargerModel, int chargerPower, double chargerPrice) {
         this.chargerManufacture = chargerManufacture;
         this.chargerModel = chargerModel;
         this.chargerPower = chargerPower;
@@ -45,11 +45,11 @@ public class ChargerModel {
         this.chargerPower = chargerPower;
     }
 
-    public int getChargerPrice() {
+    public double getChargerPrice() {
         return chargerPrice;
     }
 
-    public void setChargerPrice(int chargerPrice) {
+    public void setChargerPrice(double chargerPrice) {
         this.chargerPrice = chargerPrice;
     }
 

@@ -48,6 +48,8 @@ public class Controller {
     public Label costLabel;
     @FXML
     public Label cost;
+    @FXML
+    public Label errorWarning;
 
     //bus
     @FXML
@@ -121,6 +123,7 @@ public class Controller {
 
         setRunButton();
         setDisplayButton();
+        displayButton.setVisible(false);
 
 
     }
@@ -302,7 +305,16 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("Generate configuration plan!");
-                BusBatteryConfig busBatteryConfig = new BusBatteryConfig(busType.getValue().toString(),Integer.parseInt(batterySize.getValue().toString()), Integer.parseInt(unitCostBusBattery.getText()));
+                BusBatteryConfig busBatteryConfig = null;
+                try{
+                    checkPrice(unitCostBusBattery.getText());
+                    busBatteryConfig = new BusBatteryConfig(busType.getValue().toString(),Integer.parseInt(batterySize.getValue().toString()), Double.parseDouble(unitCostBusBattery.getText()));
+                }catch (Exception e){
+                    System.out.println("Error!");
+                    errorWarning.setText("Input Error! Input Again!");
+                    return;
+                }
+
                 ArrayList<ChargerModel> chargerModels = new ArrayList<>();
                 ObservableList<HBox> items = chargerModelPower.getItems();
                 for (HBox item: items){
@@ -318,7 +330,14 @@ public class Controller {
                         }else if (flag == 1){
                             if (checkChargerSelected){
                                 chargerPrice = (TextField)hboxItem;
-                                chargerModels.add(new ChargerModel(chargerManufacture.getValue().toString(),chargerType.getModel(),chargerType.getPower(),Integer.parseInt(chargerPrice.getText())));
+                                try {
+                                    checkPrice(chargerPrice.getText());
+                                    chargerModels.add(new ChargerModel(chargerManufacture.getValue().toString(), chargerType.getModel(), chargerType.getPower(), Double.parseDouble(chargerPrice.getText())));
+                                }catch (Exception e){
+                                    System.out.println("Error!");
+                                    errorWarning.setText("Input Error! Input Again!");
+                                    return;
+                                }
                             }
                             flag--;
                         }
@@ -331,10 +350,28 @@ public class Controller {
                 generateChargerPlan();
                 cost.setText(String.valueOf(configPlanGenerator.getExpenditure()));
                 generateSchedule();
-
+                errorWarning.setText("");
             }
         });
 
+    }
+
+    public void checkPrice(String price) throws Exception {
+        if (!checkPriceFormat(price)) {
+            throw new Exception();
+        }
+    }
+
+    public boolean checkPriceFormat(String text) {
+        if (text != null && !text.isEmpty()) {
+            String ipRegEx = "\\d\\.\\d*|[1-9]\\d*|\\d*\\.\\d*|\\d";
+            if (text.matches(ipRegEx)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
     }
 
 

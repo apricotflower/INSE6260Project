@@ -60,6 +60,7 @@
                                  </children>
                               </GridPane>
                               <Button fx:id="runButton" layoutX="175.0" layoutY="319.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="72.0" text="Run" />
+                              <Label fx:id="errorWarning" layoutX="266.0" layoutY="323.0" prefHeight="17.0" prefWidth="156.0" textAlignment="CENTER" textFill="#b72323" />
                            </children>
                         </AnchorPane>
                       <AnchorPane layoutX="409.0" layoutY="-3.0" minHeight="0.0" minWidth="0.0" prefHeight="474.0" prefWidth="415.0">

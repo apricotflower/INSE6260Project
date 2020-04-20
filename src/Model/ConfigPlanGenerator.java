@@ -35,12 +35,12 @@ public class ConfigPlanGenerator {
     }
 
     public float getExpenditure() {
-        int chargerPriceSum = 0;
+        double chargerPriceSum = 0;
         for (ChargerModel chargerModel:this.chargerModels){
             System.out.println(chargerModel.getChargerModel());
             int chargerNum = Integer.parseInt(chargerModel.getLionelGroulxNumber()) + Integer.parseInt(chargerModel.getMacDonaldNumber());
             System.out.println("Charger number: " + chargerNum);
-            int chargerPrice = chargerModel.getChargerPrice() * chargerNum;
+            double chargerPrice = chargerModel.getChargerPrice() * chargerNum;
             System.out.println("charger price: " + chargerPrice);
             chargerPriceSum = chargerPriceSum + chargerPrice;
         }

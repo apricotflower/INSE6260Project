@@ -3,13 +3,13 @@ package Model.Entities;
 public class BusBatteryConfig {
     private String busType;
     private int batterySize;
-    private int unitPrice;
+    private double unitPrice;
     private String number;
 
     public BusBatteryConfig() {
     }
 
-    public BusBatteryConfig(String busType, int batterySize, int unitPrice) {
+    public BusBatteryConfig(String busType, int batterySize, double unitPrice) {
         this.busType = busType;
         this.batterySize = batterySize;
         this.unitPrice = unitPrice;
@@ -31,11 +31,11 @@ public class BusBatteryConfig {
         this.batterySize = batterySize;
     }
 
-    public int getUnitPrice() {
+    public double getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(int unitPrice) {
+    public void setUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
     }
 
