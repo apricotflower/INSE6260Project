@@ -1,11 +1,7 @@
 package Model.Entities;
 
-import java.util.ArrayList;
-
 public class Bus {
     private String busId;
-//    private ArrayList<String[]> chargeTimeList;
-//    private ArrayList<String[]> assignTripList;
     private String curFinshTrip;
     private int curState;
     private String curLocation;//where is the bus after last operation
@@ -13,17 +9,8 @@ public class Bus {
 
     public Bus(String busId) {
         this.busId = busId;
-//        chargeTimeList = new ArrayList<>();
-//        assignTripList = new ArrayList<>();
     }
 
-//    public void addChargeTime(String[] chargeTime){//{location, startTime, endTime}
-//        chargeTimeList.add(chargeTime);
-//    }
-//
-//    public void addAssignTrip(String[] assignTrip){//{startLocation, startTime, endTime}
-//        assignTripList.add(assignTrip);
-//    }
 
     public String getBusId() {
         return busId;
@@ -32,22 +19,6 @@ public class Bus {
     public void setBusId(String busId) {
         this.busId = busId;
     }
-
-//    public ArrayList<String[]> getChargeTimeList() {
-//        return chargeTimeList;
-//    }
-//
-//    public void setChargeTimeList(ArrayList<String[]> chargeTimeList) {
-//        this.chargeTimeList = chargeTimeList;
-//    }
-//
-//    public ArrayList<String[]> getAssignTripList() {
-//        return assignTripList;
-//    }
-//
-//    public void setAssignTripList(ArrayList<String[]> assignTripList) {
-//        this.assignTripList = assignTripList;
-//    }
 
     public String getCurLocation() {
         return curLocation;
