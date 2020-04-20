@@ -57,4 +57,31 @@ public class Charger {
     public void setOccupyTimeList(ArrayList<Integer[]> occupyTimeList) {
         this.occupyTimeList = occupyTimeList;
     }
+
+    @Override
+    public String toString() {
+        for(Integer[] time: occupyTimeList){
+            System.out.println(timeTranslateToString(time[0],"h")+ " " + timeTranslateToString(time[1],"h"));
+        }
+        return "Charger{" +
+                "chargerId=" + chargerId +
+                ", chargerPower=" + chargerPower +
+                ", type='" + type + '\'' +
+                ", location='" + location + '\'' +
+                ", occupyTimeList=" + occupyTimeList +
+                '}';
+    }
+
+    private String timeTranslateToString(int min ,String separator){
+        int hours = min / 60;
+        int minutes = min % 60;
+
+        if (hours < 0){
+            hours = 12+hours;
+        }
+        if (hours>=24){
+            hours = hours-24;
+        }
+        return hours + separator + minutes;
+    }
 }

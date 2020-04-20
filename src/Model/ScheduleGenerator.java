@@ -271,7 +271,9 @@ public class ScheduleGenerator {
         List<Charger> LionelList = LionelChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
         List<Charger> MacList = MacChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
         chargerModel.setLionelGroulxNumber(String.valueOf(LionelList.size()));
+        LionelList.forEach(e-> System.out.println(e.toString()));
         chargerModel.setMacDonaldNumber(String.valueOf(MacList.size()));
+        MacChargerList.forEach(e-> System.out.println(e.toString()));
     }
 
     private String addNewCharger(int chargerNum,int power,String location,String type,String station,Integer btcStartTime, Integer btcEndTime, List<Charger> curLocChargerList){
@@ -354,11 +356,11 @@ public class ScheduleGenerator {
             String chargerId = "";
             int assignTripStartTime = 0;
             int btcStartTime = 0;
-            int btcEndTime = 0;
             int atSoc = curBus.getCurState();
 
             if (ocPower != 0 && onPower != 0) {
                 boolean addNew = true;
+
                 for (Integer time : curLocSchedule) {
                     if (curBus.getCurTime() < time) {
                         addNew = false;
@@ -366,21 +368,39 @@ public class ScheduleGenerator {
                         if (time - curBus.getCurTime() <= policy_oc_on_condition && time > curBus.getCurTime() + ocChargeTime) {//use OC charger
                             chargerId = chargerAssignerHelper("OC");
 
+                            assignTripStartTime = time;
+                            curLocSchedule.remove(time);
+                            System.out.println("Now assign time" + time);
+                            break;
+
                         } else {//use ON charger
-                            if (btcStartTime + onChargeTime > time) {
-                                if (btcStartTime >= curLocSchedule.get(curLocSchedule.size()-1)){
+                            if (curBus.getCurTime() + onChargeTime > time) {
+                                int flag= 0;
+                                for(Integer newTime: curLocSchedule){
+                                    if(curBus.getCurTime()+onChargeTime <= newTime){
+                                        chargerId = chargerAssignerHelper("ON");
+                                        assignTripStartTime = newTime;
+                                        curLocSchedule.remove(newTime);
+                                        System.out.println("Now assign time" + newTime);
+                                        flag = 1;
+                                        break ;
+                                    }
+                                }
+                                if(flag == 1){
+                                    break ;
+                                }else {
                                     addNewBus();
                                     return;
                                 }
-                                continue;
+                            }else {
+                                chargerId = chargerAssignerHelper("ON");
+                                assignTripStartTime = time;
+                                curLocSchedule.remove(time);
+                                System.out.println("Now assign time" + time);
+                                break ;
                             }
-                            chargerId = chargerAssignerHelper("ON");
-                        }
 
-                        assignTripStartTime = time;
-                        curLocSchedule.remove(time);
-                        System.out.println("Now assign time" + time);
-                        break;
+                        }
                     }
                 }
                 if(addNew){
@@ -393,21 +413,14 @@ public class ScheduleGenerator {
                 boolean addNew = true;
                 for (Integer time : curLocSchedule) {
                     System.out.println("Use OC charger");
-                    if (curBus.getCurTime() < time) {
-                        addNew = false;
+                    if (curBus.getCurTime() + ocChargeTime < time) {
                         btcStartTime = curBus.getCurTime();
-                        if (btcStartTime + ocChargeTime > time) {
-                            if (btcStartTime >= curLocSchedule.get(curLocSchedule.size()-1)){
-                                addNewBus();
-                                return;
-                            }
-                            continue;
-                        }
                         chargerId = chargerAssignerHelper("OC");
 
                         assignTripStartTime = time;
                         curLocSchedule.remove(time);
                         System.out.println("Now assign time" + time);
+                        addNew = false;
                         break;
                     }
                 }
@@ -418,26 +431,21 @@ public class ScheduleGenerator {
                 }
 
             }else if (onPower != 0 && ocPower == 0){// use on because no oc charger
+
                 boolean addNew = true;
                 for (Integer time : curLocSchedule) {
                     btcStartTime = curBus.getCurTime();
-                    if (curBus.getCurTime() < time) {
-                        addNew = false;
-                        if (btcStartTime + onChargeTime > time) {
-                            if (time == curLocSchedule.get(curLocSchedule.size()-1)){
-                                addNewBus();
-                                return;
-                            }
-                            continue;
-                        }
+                    if (curBus.getCurTime()+ onChargeTime < time) {
                         chargerId = chargerAssignerHelper("ON");
 
                         assignTripStartTime = time;
                         curLocSchedule.remove(time);
                         System.out.println("Now assign time" + time);
+                        addNew = false;
                         break;
                     }
                 }
+
                 if(addNew){
                     addNewBus();
                     return;
