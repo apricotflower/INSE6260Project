@@ -50,6 +50,10 @@ public class ScheduleGenerator {
     private List<Charger> LionelChargerList;
 
     private Bus curBus;
+    private List<Integer> curLocSchedule;
+    private List<Integer> otherLocSchedule;
+    private List<Charger> curLocChargerList;
+    private String station;
 
 
     public ScheduleGenerator(ConfigPlanGenerator configPlanGenerator) {
@@ -91,23 +95,8 @@ public class ScheduleGenerator {
 
         while (!MacdonaldSchedule.isEmpty() || !LionelSchedule.isEmpty()){
 
-            String station;
-            List<Integer> curLocSchedule;
-            List<Integer> otherLocSchedule;
-            List<Charger> curLocChargerList;
-            if(curBus.getCurLocation().equals("W")){
-                station = "LG";
-                curLocSchedule = LionelSchedule;
-                otherLocSchedule = MacdonaldSchedule;
-                curLocChargerList = LionelChargerList;
-            }else{
-                station = "M";
-                curLocSchedule = MacdonaldSchedule;
-                otherLocSchedule = LionelSchedule;
-                curLocChargerList = MacChargerList;
-            }
-
-            if (curLocSchedule.isEmpty() && otherLocSchedule.size() >= 3){
+            findCurLocList();
+            if (curLocSchedule.isEmpty() && ocPower!=0){
                 if (curBus.getCurState() < policy_min_state) {
                     int ocChargeTime = (int) (60 * (float) (((totalS + 0.5 * batterySize) / rate) - (curBus.getCurState() / rate)) / (float) ocPower);
                     System.out.println("Use OC charger");
@@ -124,11 +113,7 @@ public class ScheduleGenerator {
 
                     curBus.setCurState(curBus.getCurState()- totalS);
 
-                    if(curBus.getCurLocation().equals("W")){
-                        curBus.setCurLocation("E");
-                    }else{
-                        curBus.setCurLocation("W");
-                    }
+                    changeBusLocation();
 
                     curBus.setCurTime(btcEndTime+60);
                     curBus.setCurFinshTrip("empty");
@@ -146,11 +131,7 @@ public class ScheduleGenerator {
 
                     curBus.setCurState(curBus.getCurState()- totalS);
 
-                    if(curBus.getCurLocation().equals("W")){
-                        curBus.setCurLocation("E");
-                    }else{
-                        curBus.setCurLocation("W");
-                    }
+                    changeBusLocation();
 
                     curBus.setCurFinshTrip("empty");
                     curBus.addAssignTrip(new String[]{curBus.getCurLocation(),timeTranslateToString(curBus.getCurTime(),"h"),timeTranslateToString(curBus.getCurTime()+60,"h")});
@@ -244,6 +225,32 @@ public class ScheduleGenerator {
         busList.add(curBus);
     }
 
+    //-------------------------------------------update curBus --------------------------------------------------------
+
+    private void changeBusLocation(){//to another side
+        if(curBus.getCurLocation().equals("W")){
+            curBus.setCurLocation("E");
+        }else{
+            curBus.setCurLocation("W");
+        }
+    }
+
+    private void findCurLocList(){//find schedule and chargers in current location
+        if(curBus.getCurLocation().equals("W")){
+            station = "LG";
+            curLocSchedule = LionelSchedule;
+            otherLocSchedule = MacdonaldSchedule;
+            curLocChargerList = LionelChargerList;
+        }else{
+            station = "M";
+            curLocSchedule = MacdonaldSchedule;
+            otherLocSchedule = LionelSchedule;
+            curLocChargerList = MacChargerList;
+        }
+    }
+
+    //-------------------------------------------charge tools------------------------------------------------------
+
     private String addNewCharger(int chargerNum,int power,String location,String type,String station,Integer btcStartTime, Integer btcEndTime, List<Charger> curLocChargerList){
         Charger charger = new Charger(chargerNum);
         charger.setChargerPower(power);
@@ -291,24 +298,12 @@ public class ScheduleGenerator {
         }
     }
 
-    private void chargerAssignerHelper(int btcStartTime,String chargerType,int chargeTime, List<Charger> curLocChargerList, String location, String station, int curState){
-
+    private void chargerAssignerHelper(){
+        
     }
 
     private void chargerAssigner(String location){
-        String station;
-        List<Integer> curLocSchedule;
-        List<Charger> curLocChargerList;
-
-        if(location.equals("W")){
-            station = "LG";
-            curLocSchedule = LionelSchedule;
-            curLocChargerList = LionelChargerList;
-        }else {
-            station = "M";
-            curLocSchedule = MacdonaldSchedule;
-            curLocChargerList = MacChargerList;
-        }
+        findCurLocList();
         System.out.println("Start next trip");
 
         if (curBus.getCurState() < policy_min_state){//need to charge
@@ -448,20 +443,8 @@ public class ScheduleGenerator {
     private void updateCurBus(int assignTripStartTime,int atSoc, String chargerId, String btcStartTime, String btcEndTime, String location){
         System.out.println("update the bus current state");
 
-        List<Integer> curLocSchedule;
-        List<Integer> otherLocSchedule;
-        String otherLocation;
-        if (location.equals("W")){
-            curBus.setCurLocation("E");
-            curLocSchedule = MacdonaldSchedule;
-            otherLocSchedule = LionelSchedule;
-            otherLocation = "E";
-        }else {
-            curBus.setCurLocation("W");
-            curLocSchedule = LionelSchedule;
-            otherLocSchedule = MacdonaldSchedule;
-            otherLocation = "W";
-        }
+        curBus.setCurLocation(location);
+        changeBusLocation();
 
         String tripID = location + timeTranslateToString(assignTripStartTime,"-");
         if (assignTripStartTime == 0){
@@ -470,16 +453,6 @@ public class ScheduleGenerator {
             return;
         }
         createNewScheduleLine(String.valueOf(curBus.getBusId()),String.valueOf(batterySize),curBus.getCurFinshTrip(),String.valueOf(atSoc),chargerId,btcStartTime,btcEndTime,String.valueOf(curBus.getCurState()),tripID,timeTranslateToString(assignTripStartTime,"h"),timeTranslateToString(assignTripStartTime+60,"h"));
-
-//        if (curLocSchedule.isEmpty() && otherLocSchedule.size() >= 3){
-//            System.out.println("Add empty bus transfer to Location " + location);
-//            chargerAssigner(otherLocation);
-//            curBus.setCurLocation(location);
-//            curBus.setCurTime(curBus.getCurTime()+60);
-//            curBus.setCurState(curBus.getCurState()- totalS);
-//            curBus.setCurFinshTrip("empty");
-//
-//        }
 
         curBus.setCurState(curBus.getCurState()- totalS);
 
