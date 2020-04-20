@@ -98,12 +98,16 @@ public class ScheduleGenerator {
         while (!MacdonaldSchedule.isEmpty() || !LionelSchedule.isEmpty()){
 
             findCurLocList();
-            if (addEmptyBusTrip() && ocPower!=0){
-//            if (curLocSchedule.isEmpty() && otherLocSchedule.size()>=1 && ocPower!=0){
+            if (addEmptyBusTrip()){
                 if (curBus.getCurState() < policy_min_state) {
                     int atSoc = curBus.getCurState();
                     int btcStartTime = curBus.getCurTime();
-                    String chargerId = chargerAssignerHelper("OC");
+                    String chargerId;
+                    if(ocPower == 0){
+                        chargerId = chargerAssignerHelper("ON");
+                    }else{
+                        chargerId = chargerAssignerHelper("OC");
+                    }
 
                     updateCurBus(curBus.getCurTime(),atSoc,chargerId,timeTranslateToString(btcStartTime,"h"),timeTranslateToString(curBus.getCurTime(),"h"),curBus.getCurLocation(),true);
 
