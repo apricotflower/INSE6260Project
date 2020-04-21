@@ -1,5 +1,12 @@
 package Model.Entities;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is entity of bus and battery configure.
+ *
+ */
+
 public class BusBatteryConfig {
     private String busType;
     private int batterySize;

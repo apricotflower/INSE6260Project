@@ -2,6 +2,13 @@ package Model.Entities;
 
 import java.util.ArrayList;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is entity of charger.
+ *
+ */
+
 public class Charger {
     private int chargerId;
     private int chargerPower;
@@ -68,7 +75,6 @@ public class Charger {
                 ", chargerPower=" + chargerPower +
                 ", type='" + type + '\'' +
                 ", location='" + location + '\'' +
-                ", occupyTimeList=" + occupyTimeList +
                 '}';
     }
 

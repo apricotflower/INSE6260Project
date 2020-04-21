@@ -1,5 +1,12 @@
 package Model.Entities;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is entity of bus.
+ *
+ */
+
 public class Bus {
     private String busId;
     private String curFinshTrip;

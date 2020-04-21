@@ -1,4 +1,11 @@
-package Parameter;
+package Model.Parameter;
+
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is parameter data.
+ *
+ */
 
 public class PARAMETER {
     public final static int TOTAL_DISTANCE = 40;

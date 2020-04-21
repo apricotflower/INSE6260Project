@@ -1,5 +1,5 @@
 package Model.Entities;
-import Parameter.PARAMETER;
+import Model.Parameter.PARAMETER;
 
 public class ChargerModel {
     private String chargerManufacture;

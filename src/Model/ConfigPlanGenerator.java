@@ -5,6 +5,13 @@ import java.util.ArrayList;
 import Model.Entities.ChargerModel;
 import Model.Entities.BusBatteryConfig;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is the algorithem to generate the configuration plan.
+ *
+ */
+
 public class ConfigPlanGenerator {
     private ArrayList<ChargerModel> chargerModels;
     private BusBatteryConfig busBatteryConfig;
