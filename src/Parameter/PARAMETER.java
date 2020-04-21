@@ -3,7 +3,7 @@ package Parameter;
 public class PARAMETER {
     public final static int TOTAL_DISTANCE = 40;
     public final static int RATE = 1;
-    public final static int POLICY_ON_OC_CONDITION = 20;
+    public final static int POLICY_ON_OC_CONDITION = 120;
 
     public final static String LIONEL_GROULX_DIRECTION = "W";
     public final static String MACDONALD_DIRECTION = "E";

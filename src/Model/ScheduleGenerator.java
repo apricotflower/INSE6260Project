@@ -17,13 +17,15 @@ battery size Q : 294/394 kwh (only one)
 charger W: 450kw,50kw/ 300kw,100kw  (choose one pair only)
 charge time t: t = Q/W (The Q here is the battery size left after driving, not the total size)
 Total distance: 40km(assume)
+Speed: 40km/h(assume)
 1 km/kwh(assume), can drive 294km/394km after full charge
 
 Policy:
 If battery lower than 50% (the rest can drive less than xx km), go to charge.（OC or ON）
-If waiting time longer than 20min ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time + 50% battery
+If waiting time longer than 120 min ,use slower charger(overnight) to charge to full, else use fast charger (opportunity) to charge to one time tirp + 50% battery
 If not caught new time , add one bus
 If no free charger when a bus need charge, add one charger
+If there is no bus trip time assign in the future time in current station and there is bus trip time in the other station after 60 min, add an empty bus trip to other station
 */
 
 public class ScheduleGenerator {
@@ -104,16 +106,16 @@ public class ScheduleGenerator {
                     int atSoc = curBus.getCurState();
                     int btcStartTime = curBus.getCurTime();
                     String chargerId;
-                    int ocChargeTime = (int) (60 * (float) (((totalS + 0.5 * batterySize) / rate) - (curBus.getCurState() / rate)) / (float) ocPower);
-                    int onChargeTime = (int) (60 * (float) (batterySize - (curBus.getCurState() / rate)) / (float) onPower);
+                    int ocChargeTime = chargeTimeCalculator(PARAMETER.OC_CHARGER);
+                    int onChargeTime = chargeTimeCalculator(PARAMETER.ON_CHARGER);
                     if(ocPower == 0){
-                        if(curBus.getCurTime() + onChargeTime > curLocSchedule.get(curLocSchedule.size()-1)){
+                        if(curBus.getCurTime() + onChargeTime + 60 > otherLocSchedule.get(otherLocSchedule.size()-1)){
                             addNewBus();
                             continue;
                         }
                         chargerId = chargerAssignerHelper(PARAMETER.ON_CHARGER);
                     }else{
-                        if(curBus.getCurTime() + ocChargeTime > curLocSchedule.get(curLocSchedule.size()-1)){
+                        if(curBus.getCurTime() + ocChargeTime + 60 > otherLocSchedule.get(otherLocSchedule.size()-1)){
                             addNewBus();
                             continue;
                         }
@@ -278,7 +280,18 @@ public class ScheduleGenerator {
 
     //-------------------------------------------charger tools------------------------------------------------------
 
-    public void setChargerNum(ChargerModel chargerModel, String type){
+    private int chargeTimeCalculator(String type){
+        if (type.equals(PARAMETER.OC_CHARGER)){
+            return (int) (60 * (float) (((totalS + 0.5 * batterySize) / rate) - (curBus.getCurState() / rate)) / (float) ocPower);
+        }else if(type.equals(PARAMETER.ON_CHARGER)){
+            return (int) (60 * (float) (batterySize - (curBus.getCurState() / rate)) / (float) onPower);
+        }else{
+            System.out.println("Charging type error!");
+            return -1;
+        }
+    }
+
+    private void setChargerNum(ChargerModel chargerModel, String type){
         List<Charger> LionelList = LionelChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
         List<Charger> MacList = MacChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
         chargerModel.setLionelGroulxNumber(String.valueOf(LionelList.size()));
@@ -335,8 +348,8 @@ public class ScheduleGenerator {
     }
 
     private String chargerAssignerHelper(String type){// type is "OC" or "ON"
-        int ocChargeTime = (int) (60 * (float) (((totalS + 0.5 * batterySize) / rate) - (curBus.getCurState() / rate)) / (float) ocPower);
-        int onChargeTime = (int) (60 * (float) (batterySize - (curBus.getCurState() / rate)) / (float) onPower);
+        int ocChargeTime = chargeTimeCalculator(PARAMETER.OC_CHARGER);
+        int onChargeTime = chargeTimeCalculator(PARAMETER.ON_CHARGER);
         System.out.println("Use "+ type +" charger");
         int btcStartTime = curBus.getCurTime();
         int btcEndTime;
@@ -362,8 +375,8 @@ public class ScheduleGenerator {
 
         if (curBus.getCurState() < policy_min_state){//need to charge
             System.out.println("Need to charge");
-            int ocChargeTime = (int) (60 * (float) (((totalS + 0.5 * batterySize) / rate) - (curBus.getCurState() / rate)) / (float) ocPower);
-            int onChargeTime = (int) (60 * (float) (batterySize - (curBus.getCurState() / rate)) / (float) onPower);
+            int ocChargeTime = chargeTimeCalculator(PARAMETER.OC_CHARGER);
+            int onChargeTime = chargeTimeCalculator(PARAMETER.ON_CHARGER);
             String chargerId = "";
             int assignTripStartTime = 0;
             int btcStartTime = 0;
