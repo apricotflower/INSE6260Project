@@ -1,5 +1,12 @@
 package Model.Entities;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is entity of one line in the schedule.
+ *
+ */
+
 public class ScheduleLine {
     private String busId;
     private String batterySizeSchCol;

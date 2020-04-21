@@ -2,6 +2,13 @@ package Controller.Entities;
 
 import javafx.scene.control.CheckBox;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is entity chargerCheckBox.
+ *
+ */
+
 public class ChargerCheckBox extends CheckBox{
     private String model;
     private int power;

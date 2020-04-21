@@ -3,7 +3,7 @@ package Model.Entities;
 /**
  *
  * @author  Xiayan Zhong
- * This class is entity of bus and battery configure.
+ * This class is entity of one line in configuration plan about bus and battery.
  *
  */
 

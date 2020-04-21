@@ -16,10 +16,15 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
-
 import java.util.ArrayList;
-
 import Model.Entities.BusBatteryConfig;
+
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is controller.
+ *
+ */
 
 
 public class Controller {

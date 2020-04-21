@@ -1,6 +1,13 @@
 package Model.Entities;
 import Model.Parameter.PARAMETER;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is entity of one line in configuration plan about charger.
+ *
+ */
+
 public class ChargerModel {
     private String chargerManufacture;
     private String chargerModel;
