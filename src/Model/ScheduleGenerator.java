@@ -104,9 +104,19 @@ public class ScheduleGenerator {
                     int atSoc = curBus.getCurState();
                     int btcStartTime = curBus.getCurTime();
                     String chargerId;
+                    int ocChargeTime = (int) (60 * (float) (((totalS + 0.5 * batterySize) / rate) - (curBus.getCurState() / rate)) / (float) ocPower);
+                    int onChargeTime = (int) (60 * (float) (batterySize - (curBus.getCurState() / rate)) / (float) onPower);
                     if(ocPower == 0){
+                        if(curBus.getCurTime() + onChargeTime > curLocSchedule.get(curLocSchedule.size()-1)){
+                            addNewBus();
+                            continue;
+                        }
                         chargerId = chargerAssignerHelper(PARAMETER.ON_CHARGER);
                     }else{
+                        if(curBus.getCurTime() + ocChargeTime > curLocSchedule.get(curLocSchedule.size()-1)){
+                            addNewBus();
+                            continue;
+                        }
                         chargerId = chargerAssignerHelper(PARAMETER.OC_CHARGER);
                     }
 
@@ -512,7 +522,7 @@ public class ScheduleGenerator {
 
     private Integer timeTranslateToInt(String time, String separator){
         int min;
-        if (time.split(separator)[0].equals("0")||time.split(separator)[0].equals("1") ){//should optimal
+        if (time.split(separator)[0].equals("0")||time.split(separator)[0].equals("1")||time.split(separator)[0].equals("2")||time.split(separator)[0].equals("3") ){//should optimal
             min = Integer.parseInt(time.split(separator)[0])*60 + 24*60 + Integer.parseInt(time.split(separator)[1]);
         }else{
             min = Integer.parseInt(time.split(separator)[0])*60 + Integer.parseInt(time.split(separator)[1]);
