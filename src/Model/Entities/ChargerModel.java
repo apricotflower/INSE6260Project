@@ -1,4 +1,5 @@
 package Model.Entities;
+import Parameter.PARAMETER;
 
 public class ChargerModel {
     private String chargerManufacture;
@@ -15,9 +16,9 @@ public class ChargerModel {
         this.chargerPower = chargerPower;
         this.chargerPrice = chargerPrice;
         if (chargerPower <= 100){
-            this.type = "ON";
+            this.type = PARAMETER.ON_CHARGER;
         }else {
-            this.type = "OC";
+            this.type = PARAMETER.OC_CHARGER;
         }
     }
 

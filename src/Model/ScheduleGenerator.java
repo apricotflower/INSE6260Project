@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import Parameter.PARAMETER;
 
 /*
 Lionel : 5h22 start 1h20 end , 1h/turn
@@ -33,9 +34,9 @@ public class ScheduleGenerator {
     private BusBatteryConfig busBatteryConfig;
     private ArrayList<ChargerModel> chargerModels;
     
-    private final int totalS = 40;
-    private final int rate = 1;
-    private final int policy_oc_on_condition = 20;
+    private final int totalS = PARAMETER.TOTAL_DISTANCE;
+    private final int rate = PARAMETER.RATE;
+    private final int policy_oc_on_condition = PARAMETER.POLICY_ON_OC_CONDITION;
 
     private int batterySize;
     private int ocPower = 0;
@@ -70,8 +71,8 @@ public class ScheduleGenerator {
 
         //initialize
         scheduleLines = new ArrayList<>();
-        MacdonaldSchedule = readBusSchedule("Bus_schedule/Macdonald.txt");//E
-        LionelSchedule = readBusSchedule("Bus_schedule/Lionel-Groulx.txt");//W
+        MacdonaldSchedule = readBusSchedule(PARAMETER.MACDONALD_SCHEDULE_FILE_PATH);//E
+        LionelSchedule = readBusSchedule(PARAMETER.LIONEL_GROULX_SCHEDULE_FILE_PATH);//W
         System.out.println("E schedule");
         MacdonaldSchedule.forEach(line-> System.out.println(timeTranslateToString(line,":")));
         System.out.println("W schedule");
@@ -84,9 +85,9 @@ public class ScheduleGenerator {
         policy_min_state = 0.5 * batterySize;
 
         for (ChargerModel chargerModel: chargerModels) {
-            if (chargerModel.getType().equals("OC")){
+            if (chargerModel.getType().equals(PARAMETER.OC_CHARGER)){
                 ocPower = chargerModel.getChargerPower();
-            }else if (chargerModel.getType().equals("ON")){
+            }else if (chargerModel.getType().equals(PARAMETER.ON_CHARGER)){
                 onPower = chargerModel.getChargerPower();
             }
         }
@@ -104,9 +105,9 @@ public class ScheduleGenerator {
                     int btcStartTime = curBus.getCurTime();
                     String chargerId;
                     if(ocPower == 0){
-                        chargerId = chargerAssignerHelper("ON");
+                        chargerId = chargerAssignerHelper(PARAMETER.ON_CHARGER);
                     }else{
-                        chargerId = chargerAssignerHelper("OC");
+                        chargerId = chargerAssignerHelper(PARAMETER.OC_CHARGER);
                     }
 
                     updateCurBus(curBus.getCurTime(),atSoc,chargerId,timeTranslateToString(btcStartTime,"h"),timeTranslateToString(curBus.getCurTime(),"h"),curBus.getCurLocation(),true);
@@ -116,14 +117,14 @@ public class ScheduleGenerator {
                 }
 
             }else{
-                if(curBus.getCurLocation().equals("W")){
+                if(curBus.getCurLocation().equals(PARAMETER.LIONEL_GROULX_DIRECTION)){
                     System.out.println("Now in location W Lionel");
 
                     if (LionelSchedule.isEmpty() || curBus.getCurTime() > LionelSchedule.get(LionelSchedule.size()-1)){
                         addNewBus();
                         continue;
                     }
-                    chargerAssigner("W");
+                    chargerAssigner(PARAMETER.LIONEL_GROULX_DIRECTION);
 
                 }else{
                     System.out.println("Now in location E Macdonald");
@@ -131,7 +132,7 @@ public class ScheduleGenerator {
                         addNewBus();
                         continue;
                     }
-                    chargerAssigner("E");
+                    chargerAssigner(PARAMETER.MACDONALD_DIRECTION);
 
                 }
             }
@@ -142,10 +143,10 @@ public class ScheduleGenerator {
         System.out.println("Generate lines number: " + scheduleLines.size());
 
         for(ChargerModel chargerModel:chargerModels){
-            if(chargerModel.getType().equals("ON")){
-                setChargerNum(chargerModel,"ON");
-            }else if(chargerModel.getType().equals("OC")){
-                setChargerNum(chargerModel,"OC");
+            if(chargerModel.getType().equals(PARAMETER.ON_CHARGER)){
+                setChargerNum(chargerModel,PARAMETER.ON_CHARGER);
+            }else if(chargerModel.getType().equals(PARAMETER.OC_CHARGER)){
+                setChargerNum(chargerModel,PARAMETER.OC_CHARGER);
             }
         }
 
@@ -179,17 +180,17 @@ public class ScheduleGenerator {
         curBus.setCurState(batterySize);
         System.out.println("Add new bus" + busId);
         if (MacdonaldSchedule.isEmpty()){
-            updateCurBus(LionelSchedule.get(0),curBus.getCurState(),"","","","W",false);
+            updateCurBus(LionelSchedule.get(0),curBus.getCurState(),"","","",PARAMETER.LIONEL_GROULX_DIRECTION,false);
             LionelSchedule.remove(0);
         }else if (LionelSchedule.isEmpty()){
-            updateCurBus(MacdonaldSchedule.get(0),curBus.getCurState(),"","","","E",false);
+            updateCurBus(MacdonaldSchedule.get(0),curBus.getCurState(),"","","",PARAMETER.MACDONALD_DIRECTION,false);
             MacdonaldSchedule.remove(0);
         } else {
             if (MacdonaldSchedule.get(0)<= LionelSchedule.get(0)){//choose the earliest time in Mac
-                updateCurBus(MacdonaldSchedule.get(0),curBus.getCurState(),"","","","E",false);
+                updateCurBus(MacdonaldSchedule.get(0),curBus.getCurState(),"","","",PARAMETER.MACDONALD_DIRECTION,false);
                 MacdonaldSchedule.remove(0);
             }else{//choose the earliest time in Lio
-                updateCurBus(LionelSchedule.get(0),curBus.getCurState(),"","","","W",false);
+                updateCurBus(LionelSchedule.get(0),curBus.getCurState(),"","","",PARAMETER.LIONEL_GROULX_DIRECTION,false);
                 LionelSchedule.remove(0);
             }
         }
@@ -199,21 +200,21 @@ public class ScheduleGenerator {
     //-------------------------------------------update curBus --------------------------------------------------------
 
     private void changeBusLocation(){//to another side
-        if(curBus.getCurLocation().equals("W")){
-            curBus.setCurLocation("E");
+        if(curBus.getCurLocation().equals(PARAMETER.LIONEL_GROULX_DIRECTION)){
+            curBus.setCurLocation(PARAMETER.MACDONALD_DIRECTION);
         }else{
-            curBus.setCurLocation("W");
+            curBus.setCurLocation(PARAMETER.LIONEL_GROULX_DIRECTION);
         }
     }
 
     private void findCurLocList(){//find schedule and chargers in current location
-        if(curBus.getCurLocation().equals("W")){
-            station = "LG";
+        if(curBus.getCurLocation().equals(PARAMETER.LIONEL_GROULX_DIRECTION)){
+            station = PARAMETER.LIONEL_GROULX_STATION;
             curLocSchedule = LionelSchedule;
             otherLocSchedule = MacdonaldSchedule;
             curLocChargerList = LionelChargerList;
         }else{
-            station = "M";
+            station = PARAMETER.MACDONALD_STATION;
             curLocSchedule = MacdonaldSchedule;
             otherLocSchedule = LionelSchedule;
             curLocChargerList = MacChargerList;
@@ -289,7 +290,7 @@ public class ScheduleGenerator {
 
     private String addChargerTime(List<Charger> curLocChargerList,String type, String location, String station, Integer btcStartTime, Integer btcEndTime){
         int power;
-        if(type.equals("OC")){
+        if(type.equals(PARAMETER.OC_CHARGER)){
             power = ocPower;
         }else {
             power = onPower;
@@ -329,7 +330,7 @@ public class ScheduleGenerator {
         System.out.println("Use "+ type +" charger");
         int btcStartTime = curBus.getCurTime();
         int btcEndTime;
-        if(type.equals("OC")){
+        if(type.equals(PARAMETER.OC_CHARGER)){
             btcEndTime = btcStartTime + ocChargeTime;
         }else{
             btcEndTime = btcStartTime + onChargeTime;
@@ -337,7 +338,7 @@ public class ScheduleGenerator {
         String location = curBus.getCurLocation();
         String chargerId = addChargerTime(curLocChargerList, type, location, station, btcStartTime, btcEndTime);
         curBus.setCurTime(btcEndTime);
-        if(type.equals("OC")){
+        if(type.equals(PARAMETER.OC_CHARGER)){
             curBus.setCurState((int) (totalS + 0.5 * batterySize));//update the curState of oc charger
         }else{
             curBus.setCurState(batterySize);//update the curState of on charger
@@ -366,7 +367,7 @@ public class ScheduleGenerator {
                         addNew = false;
                         btcStartTime = curBus.getCurTime();
                         if (time - curBus.getCurTime() <= policy_oc_on_condition && time > curBus.getCurTime() + ocChargeTime) {//use OC charger
-                            chargerId = chargerAssignerHelper("OC");
+                            chargerId = chargerAssignerHelper(PARAMETER.OC_CHARGER);
 
                             assignTripStartTime = time;
                             curLocSchedule.remove(time);
@@ -378,7 +379,7 @@ public class ScheduleGenerator {
                                 int flag= 0;
                                 for(Integer newTime: curLocSchedule){
                                     if(curBus.getCurTime()+onChargeTime <= newTime){
-                                        chargerId = chargerAssignerHelper("ON");
+                                        chargerId = chargerAssignerHelper(PARAMETER.ON_CHARGER);
                                         assignTripStartTime = newTime;
                                         curLocSchedule.remove(newTime);
                                         System.out.println("Now assign time" + newTime);
@@ -393,7 +394,7 @@ public class ScheduleGenerator {
                                     return;
                                 }
                             }else {
-                                chargerId = chargerAssignerHelper("ON");
+                                chargerId = chargerAssignerHelper(PARAMETER.ON_CHARGER);
                                 assignTripStartTime = time;
                                 curLocSchedule.remove(time);
                                 System.out.println("Now assign time" + time);
@@ -415,7 +416,7 @@ public class ScheduleGenerator {
                     System.out.println("Use OC charger");
                     if (curBus.getCurTime() + ocChargeTime < time) {
                         btcStartTime = curBus.getCurTime();
-                        chargerId = chargerAssignerHelper("OC");
+                        chargerId = chargerAssignerHelper(PARAMETER.OC_CHARGER);
 
                         assignTripStartTime = time;
                         curLocSchedule.remove(time);
@@ -436,7 +437,7 @@ public class ScheduleGenerator {
                 for (Integer time : curLocSchedule) {
                     btcStartTime = curBus.getCurTime();
                     if (curBus.getCurTime()+ onChargeTime < time) {
-                        chargerId = chargerAssignerHelper("ON");
+                        chargerId = chargerAssignerHelper(PARAMETER.ON_CHARGER);
 
                         assignTripStartTime = time;
                         curLocSchedule.remove(time);
