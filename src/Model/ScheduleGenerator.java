@@ -108,18 +108,21 @@ public class ScheduleGenerator {
                     String chargerId;
                     int ocChargeTime = chargeTimeCalculator(PARAMETER.OC_CHARGER);
                     int onChargeTime = chargeTimeCalculator(PARAMETER.ON_CHARGER);
-                    if(ocPower == 0){
+                    if(ocPower == 0 && onPower != 0){
                         if(curBus.getCurTime() + onChargeTime + 60 > otherLocSchedule.get(otherLocSchedule.size()-1)){
                             addNewBus();
                             continue;
                         }
                         chargerId = chargerAssignerHelper(PARAMETER.ON_CHARGER);
-                    }else{
+                    }else if (ocPower != 0){
                         if(curBus.getCurTime() + ocChargeTime + 60 > otherLocSchedule.get(otherLocSchedule.size()-1)){
                             addNewBus();
                             continue;
                         }
                         chargerId = chargerAssignerHelper(PARAMETER.OC_CHARGER);
+                    }else{
+                        addNewBus();
+                        continue;
                     }
 
                     updateCurBus(curBus.getCurTime(),atSoc,chargerId,timeTranslateToString(btcStartTime,"h"),timeTranslateToString(curBus.getCurTime(),"h"),curBus.getCurLocation(),true);
@@ -240,9 +243,23 @@ public class ScheduleGenerator {
             }
         }
         for(int time : otherLocSchedule){
-            if(time > curBus.getCurTime() + 60){
-                return true;
+            if (curBus.getCurState() - totalS < policy_min_state){//decide if the bus need to charge after reaching other station
+                if(ocPower == 0 && onPower != 0){//only have on charger
+                    if(time > curBus.getCurTime() + 60 + chargeTimeCalculator(PARAMETER.ON_CHARGER)){
+                        return true;
+                    }
+                }else{//hava oc and on or only have oc, use oc
+                    if(time > curBus.getCurTime() + 60 + chargeTimeCalculator(PARAMETER.OC_CHARGER)){
+                        return true;
+                    }
+                }
+            }else{
+                if(time > curBus.getCurTime() + 60){
+                    return true;
+                }
             }
+
+
         }
 
         return false;
