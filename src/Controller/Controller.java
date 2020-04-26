@@ -30,7 +30,6 @@ import Model.Entities.BusBatteryConfig;
 public class Controller {
     //base data
     public ArrayList<String> chargerListManufacture;
-//    public HashMap<String,ArrayList<String>> manufactureToCharger;
     public ArrayList<String> busTypeList;
     public ArrayList<String> batteryTypeList;
 
@@ -152,7 +151,6 @@ public class Controller {
     public HBox generateChargerListView(String[] charger){
         HBox hbox = new HBox(3);
         ChargerCheckBox chargerModelPower = new ChargerCheckBox(charger[0],Integer.parseInt(charger[1]));
-//        CheckBox chargerModelPower = new CheckBox(charger);
         TextField chargerPrice = new TextField();
         chargerPrice.setPrefColumnCount(3);
         chargerPrice.setPromptText("price");
@@ -162,7 +160,6 @@ public class Controller {
                                 Boolean old_val, Boolean new_val) {
                 if (chargerModelPower.isSelected()){
                     chargerPrice.setDisable(false);
-//                    chargerModelPower.setPrice(Integer.parseInt(chargerPrice.getText()));
                 }else {
                     chargerPrice.clear();
                     chargerPrice.setDisable(true);

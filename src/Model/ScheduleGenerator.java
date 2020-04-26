@@ -160,7 +160,7 @@ public class ScheduleGenerator {
 
     //----------------------------------------Read bus schedule File-----------------------------------------------------
 
-    private List<Integer> readBusSchedule(String fileName){
+    public List<Integer> readBusSchedule(String fileName){
         List<Integer> busSchedule = new ArrayList<>();
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             busSchedule = stream.map(line-> timeTranslateToInt(line,":")).collect(Collectors.toList());
@@ -172,7 +172,7 @@ public class ScheduleGenerator {
 
     //----------------------------------------------create and update----------------------------------------------------------
 
-    private void addNewBus(){
+    public void addNewBus(){
         int busId = 0;
         if(curBus == null){
             busId = 1;
@@ -202,7 +202,7 @@ public class ScheduleGenerator {
 
     //-------------------------------------------update curBus --------------------------------------------------------
 
-    private void changeBusLocation(){//to another side
+    public void changeBusLocation(){//to another side
         if(curBus.getCurLocation().equals(PARAMETER.LIONEL_GROULX_DIRECTION)){
             curBus.setCurLocation(PARAMETER.MACDONALD_DIRECTION);
         }else{
@@ -210,7 +210,7 @@ public class ScheduleGenerator {
         }
     }
 
-    private void findCurLocList(){//find schedule and chargers in current location
+    public void findCurLocList(){//find schedule and chargers in current location
         if(curBus.getCurLocation().equals(PARAMETER.LIONEL_GROULX_DIRECTION)){
             station = PARAMETER.LIONEL_GROULX_STATION;
             curLocSchedule = LionelSchedule;
@@ -224,7 +224,7 @@ public class ScheduleGenerator {
         }
     }
 
-    private boolean addEmptyBusTrip(){
+    public boolean addEmptyBusTrip(){
         for(int time : curLocSchedule){
             if (time > curBus.getCurTime()){
                 return false;
@@ -253,7 +253,7 @@ public class ScheduleGenerator {
         return false;
     }
 
-    private void updateCurBus(int assignTripStartTime,int atSoc, String chargerId, String btcStartTime, String btcEndTime, String location,boolean isEmpty){//isEmpty==true, is empty bus, else false
+    public void updateCurBus(int assignTripStartTime,int atSoc, String chargerId, String btcStartTime, String btcEndTime, String location,boolean isEmpty){//isEmpty==true, is empty bus, else false
         curBus.setCurLocation(location);
         changeBusLocation();
 
@@ -275,13 +275,11 @@ public class ScheduleGenerator {
         curBus.setCurTime(assignTripStartTime+60);
         curBus.setCurFinshTrip(tripID);
 
-//        System.out.println(curBus.toString());
-
     }
 
     //-------------------------------------------charger tools------------------------------------------------------
 
-    private int chargeTimeCalculator(String type){
+    public int chargeTimeCalculator(String type){
         if (type.equals(PARAMETER.OC_CHARGER)){
             return (int) (60 * (float) (((totalS + 0.5 * batterySize) / rate) - (curBus.getCurState() / rate)) / (float) ocPower);
         }else if(type.equals(PARAMETER.ON_CHARGER)){
@@ -296,12 +294,12 @@ public class ScheduleGenerator {
         List<Charger> LionelList = LionelChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
         List<Charger> MacList = MacChargerList.stream().filter(charger->charger.getType().equals(type)).collect(Collectors.toList());
         chargerModel.setLionelGroulxNumber(String.valueOf(LionelList.size()));
-        LionelList.forEach(e-> System.out.println(e.toString()));
+//        LionelList.forEach(e-> System.out.println(e.toString()));
         chargerModel.setMacDonaldNumber(String.valueOf(MacList.size()));
-        MacChargerList.forEach(e-> System.out.println(e.toString()));
+//        MacChargerList.forEach(e-> System.out.println(e.toString()));
     }
 
-    private String addNewCharger(int chargerNum,int power,String location,String type,String station,Integer btcStartTime, Integer btcEndTime, List<Charger> curLocChargerList){
+    public String addNewCharger(int chargerNum,int power,String location,String type,String station,Integer btcStartTime, Integer btcEndTime, List<Charger> curLocChargerList){
         Charger charger = new Charger(chargerNum);
         charger.setChargerPower(power);
         charger.setLocation(location);
@@ -312,7 +310,7 @@ public class ScheduleGenerator {
 
     }
 
-    private String addChargerTime(List<Charger> curLocChargerList,String type, String location, String station, Integer btcStartTime, Integer btcEndTime){
+    public String addChargerTime(List<Charger> curLocChargerList,String type, String location, String station, Integer btcStartTime, Integer btcEndTime){
         int power;
         if(type.equals(PARAMETER.OC_CHARGER)){
             power = ocPower;
@@ -348,7 +346,7 @@ public class ScheduleGenerator {
         }
     }
 
-    private String chargerAssignerHelper(String type){// type is "OC" or "ON"
+    public String chargerAssignerHelper(String type){// type is "OC" or "ON"
         int ocChargeTime = chargeTimeCalculator(PARAMETER.OC_CHARGER);
         int onChargeTime = chargeTimeCalculator(PARAMETER.ON_CHARGER);
 //        System.out.println("Use "+ type +" charger");
@@ -505,7 +503,7 @@ public class ScheduleGenerator {
 
     //----------------------------------------time translate tools-----------------------------------------------------
 
-    private String timeTranslateToString(int min ,String separator){
+    public String timeTranslateToString(int min ,String separator){
         int hours = min / 60;
         int minutes = min % 60;
 
@@ -519,7 +517,7 @@ public class ScheduleGenerator {
     }
 
 
-    private Integer timeTranslateToInt(String time, String separator){
+    public Integer timeTranslateToInt(String time, String separator){
         int min;
         if (time.split(separator)[0].equals("0")||time.split(separator)[0].equals("1")||time.split(separator)[0].equals("2")||time.split(separator)[0].equals("3") ){//should optimal
             min = Integer.parseInt(time.split(separator)[0])*60 + 24*60 + Integer.parseInt(time.split(separator)[1]);
@@ -566,5 +564,141 @@ public class ScheduleGenerator {
 
     public ArrayList<ScheduleLine> getScheduleLines() {
         return scheduleLines;
+    }
+
+    public Bus getCurBus() {
+        return curBus;
+    }
+
+    public void setCurBus(Bus curBus) {
+        this.curBus = curBus;
+    }
+
+    public List<Integer> getMacdonaldSchedule() {
+        return MacdonaldSchedule;
+    }
+
+    public void setMacdonaldSchedule(List<Integer> macdonaldSchedule) {
+        MacdonaldSchedule = macdonaldSchedule;
+    }
+
+    public List<Integer> getLionelSchedule() {
+        return LionelSchedule;
+    }
+
+    public void setLionelSchedule(List<Integer> lionelSchedule) {
+        LionelSchedule = lionelSchedule;
+    }
+
+    public List<Integer> getCurLocSchedule() {
+        return curLocSchedule;
+    }
+
+    public void setCurLocSchedule(List<Integer> curLocSchedule) {
+        this.curLocSchedule = curLocSchedule;
+    }
+
+    public List<Integer> getOtherLocSchedule() {
+        return otherLocSchedule;
+    }
+
+    public void setOtherLocSchedule(List<Integer> otherLocSchedule) {
+        this.otherLocSchedule = otherLocSchedule;
+    }
+
+    public String getStation() {
+        return station;
+    }
+
+    public void setStation(String station) {
+        this.station = station;
+    }
+
+    public int getTotalS() {
+        return totalS;
+    }
+
+    public int getRate() {
+        return rate;
+    }
+
+    public int getPolicy_oc_on_condition() {
+        return policy_oc_on_condition;
+    }
+
+    public int getBatterySize() {
+        return batterySize;
+    }
+
+    public void setBatterySize(int batterySize) {
+        this.batterySize = batterySize;
+    }
+
+    public int getOcPower() {
+        return ocPower;
+    }
+
+    public void setOcPower(int ocPower) {
+        this.ocPower = ocPower;
+    }
+
+    public int getOnPower() {
+        return onPower;
+    }
+
+    public void setOnPower(int onPower) {
+        this.onPower = onPower;
+    }
+
+    public double getPolicy_min_state() {
+        return policy_min_state;
+    }
+
+    public void setPolicy_min_state(double policy_min_state) {
+        this.policy_min_state = policy_min_state;
+    }
+
+    public void setScheduleLines(ArrayList<ScheduleLine> scheduleLines) {
+        this.scheduleLines = scheduleLines;
+    }
+
+    public ArrayList<Bus> getBusList() {
+        return busList;
+    }
+
+    public void setBusList(ArrayList<Bus> busList) {
+        this.busList = busList;
+    }
+
+    public List<Charger> getMacChargerList() {
+        return MacChargerList;
+    }
+
+    public void setMacChargerList(List<Charger> macChargerList) {
+        MacChargerList = macChargerList;
+    }
+
+    public List<Charger> getLionelChargerList() {
+        return LionelChargerList;
+    }
+
+    public void setLionelChargerList(List<Charger> lionelChargerList) {
+        LionelChargerList = lionelChargerList;
+    }
+
+    public List<Charger> getCurLocChargerList() {
+        return curLocChargerList;
+    }
+
+    public void setCurLocChargerList(List<Charger> curLocChargerList) {
+        this.curLocChargerList = curLocChargerList;
+    }
+
+    public int getEmptyBusNum() {
+        return emptyBusNum;
+    }
+
+    public void setEmptyBusNum(int emptyBusNum) {
+        this.emptyBusNum = emptyBusNum;
     }
 }
