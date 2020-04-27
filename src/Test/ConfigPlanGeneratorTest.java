@@ -17,16 +17,29 @@ public class ConfigPlanGeneratorTest {
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
-    @Before
-    public void beforeMethod() {
+//    @Before
+//    public void beforeMethod() {
+//        ArrayList<ChargerModel> chargerModels = new ArrayList<>();
+//        chargerModels.add(new ChargerModel("sampleManufacture","sampleModel",300,5.4));
+//        BusBatteryConfig busBatteryConfig = new BusBatteryConfig("SampleBusType",294, 3.4);
+//        configPlanGenerator = new ConfigPlanGenerator(chargerModels,busBatteryConfig);
+//    }
+
+    @Test
+    public void testGetExpenditure(){
         ArrayList<ChargerModel> chargerModels = new ArrayList<>();
         chargerModels.add(new ChargerModel("sampleManufacture","sampleModel",300,5.4));
         BusBatteryConfig busBatteryConfig = new BusBatteryConfig("SampleBusType",294, 3.4);
         configPlanGenerator = new ConfigPlanGenerator(chargerModels,busBatteryConfig);
+        assertEquals(72.0,configPlanGenerator.getExpenditure(), 0.0f);
     }
 
     @Test
-    public void testGetExpenditure(){
-        assertEquals(72.0,configPlanGenerator.getExpenditure(), 0.0f);
+    public void testGetExpenditureBoundary(){
+        ArrayList<ChargerModel> chargerModels = new ArrayList<>();
+        chargerModels.add(new ChargerModel("sampleManufacture","sampleModel",300,0));
+        BusBatteryConfig busBatteryConfig = new BusBatteryConfig("SampleBusType",294, 0);
+        configPlanGenerator = new ConfigPlanGenerator(chargerModels,busBatteryConfig);
+        assertEquals(0,configPlanGenerator.getExpenditure(), 0.0f);
     }
 }
