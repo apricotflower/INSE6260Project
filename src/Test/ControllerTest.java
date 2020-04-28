@@ -1,15 +1,19 @@
 package Test;
 import Controller.Controller;
 
-import Controller.Entities.ChargerCheckBox;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
+
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is for test Controller
+ *
+ */
 
 public class ControllerTest {
     private Controller con;

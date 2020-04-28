@@ -11,19 +11,18 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is for test ConfigPlanGenerator.
+ *
+ */
+
 public class ConfigPlanGeneratorTest {
     private ConfigPlanGenerator configPlanGenerator;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
-
-//    @Before
-//    public void beforeMethod() {
-//        ArrayList<ChargerModel> chargerModels = new ArrayList<>();
-//        chargerModels.add(new ChargerModel("sampleManufacture","sampleModel",300,5.4));
-//        BusBatteryConfig busBatteryConfig = new BusBatteryConfig("SampleBusType",294, 3.4);
-//        configPlanGenerator = new ConfigPlanGenerator(chargerModels,busBatteryConfig);
-//    }
 
     @Test
     public void testGetExpenditure(){

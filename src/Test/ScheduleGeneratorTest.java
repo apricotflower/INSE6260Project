@@ -9,16 +9,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static org.junit.Assert.*;
+
+/**
+ *
+ * @author  Xiayan Zhong
+ * This class is for test ScheduleGenerator
+ *
+ */
 
 public class ScheduleGeneratorTest {
     private ConfigPlanGenerator configPlanGenerator;
